@@ -12,6 +12,10 @@ export default {
         secret_key: {
             format: 'String',
             default: undefined
+        },
+        subscriptions: {
+            success_url: 'String',
+            cancel_url: 'String'
         }
     },
     iamport: {

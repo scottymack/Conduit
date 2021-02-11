@@ -27,8 +27,11 @@ export class StripeHandlers {
         if (!paymentsConfig.stripe.enabled) {
           throw ConduitError.forbidden('Stripe is deactivated');
         }
-        if (!paymentsConfig.stripe || !paymentsConfig.stripe.secret_key) {
+        if (isNil(paymentsConfig.stripe) || isNil(paymentsConfig.stripe.secret_key)) {
           throw ConduitError.forbidden('Cannot enable stripe due to missing api key');
+        }
+        if (isNil(paymentsConfig.stripe.subscriptions) || isNil(paymentsConfig.stripe.subscriptions.success_url) || isNil(paymentsConfig.stripe.subscriptions.cancel_url)) {
+          throw ConduitError.forbidden('Cannot enable stripe due to missing redirect urls');
         }
         this.client = new Stripe(paymentsConfig.stripe.secret_key, {
           apiVersion: "2020-08-27"
@@ -75,14 +78,14 @@ export class StripeHandlers {
     }
 
     if (!isNil(userId)) {
-      const customerDb = await this.database.findOne('PaymentsCustomer', { userId })
+      const customerDb = await this.database.findOne('PaymentsCustomer', { userId, stripe: { $ne: null } })
         .catch((e: Error) => {
           errorMessage = e.message;
         });
       if (!isNil(errorMessage)) {
         return callback({ code: grpc.status.INTERNAL, message: errorMessage });
       }
-      if (isNil(customerDb) || isNil(customerDb.stripe)) {
+      if (isNil(customerDb)) {
         const customer = await this.client.customers.create({
           metadata: {
             userId: userId
@@ -338,6 +341,100 @@ export class StripeHandlers {
     });
   
     return Promise.resolve({ subscriptionId: product.id, priceId: price.id });
+  }
+
+  async subscribeToProduct(call: any, callback: any) {
+    const { productId } = JSON.parse(call.request.params);
+    const context = JSON.parse(call.request.context);
+
+    if (isNil(context)) {
+      return callback({ code: grpc.status.UNAUTHENTICATED, message: 'No headers provided' });
+    }
+
+    if (isNil(productId)) {
+      return callback({ code: grpc.status.INVALID_ARGUMENT, message: 'productId is required' });
+    }
+
+    let errorMessage: string | null = null;
+
+    const product = await this.database.findOne('Product', { _id: productId })
+      .catch((e: Error) => {
+        errorMessage = e.message;
+      });
+    if (!isNil(errorMessage)) {
+      return callback({ code: grpc.status.INTERNAL, message: errorMessage });
+    }
+    if (isNil(product) || !product.isSubscription) {
+      return callback({ code: grpc.status.INVALID_ARGUMENT, message: 'productId not found or its not a subscription'});
+    }
+    if (isNil(product.stripe) || isNil(product.stripe.priceId)) {
+      return callback({ code: grpc.status.INTERNAL, message: 'product is not registered to stripe dashboard'});
+    }
+
+    let userId = context.user._id;
+    let customerId;
+    const customerDb = await this.database.findOne('PaymentsCustomer', { userId, stripe: { $ne: null } })
+      .catch((e: Error) => {
+        errorMessage = e.message;
+      });
+    if (!isNil(errorMessage)) {
+      return callback({ code: grpc.status.INTERNAL, message: errorMessage });
+    }
+    if (isNil(customerDb)) {
+      const customer = await this.client.customers.create({
+        metadata: {
+          userId
+        }
+      });
+      customerId = customer.id;
+      await this.database.create('PaymentsCustomer', {
+        stripe: {
+          customerId
+        },
+        userId,
+      }).catch((e: Error) => {
+        errorMessage = e.message;
+      });
+      if (!isNil(errorMessage)) {
+        return callback({ code: grpc.status.INTERNAL, message: errorMessage });
+      }
+    } else {
+      customerId = customerDb.stripe.customerId;
+    }
+
+    const config = await this.grpcSdk.config.get("payments").catch((e: any) => (errorMessage = e.message));
+    if (!isNil(errorMessage)) return callback({ code: grpc.status.INTERNAL, message: errorMessage });
+
+    try {
+      const session = await this.client.checkout.sessions.create({
+        mode: "subscription",
+        payment_method_types: ["card"],
+        line_items: [{
+          price: product.stripe.priceId,
+          quantity: 1
+        }],
+        // {CHECKOUT_SESSION_ID} is a string literal; do not change it!
+        // the actual Session ID is returned in the query parameter when the customer
+        // is redirected to the success page.
+        success_url: config.stripe.subscriptions.success_url + "?session_id={CHECKOUT_SESSION_ID}",
+        cancel_url:  config.stripe.subscriptions.cancel_url,
+        customer: customerId,
+        metadata: {
+          userId,
+          productId
+        }
+      });
+
+      await this.database.create('Transaction', {
+        userId,
+        provider: PROVIDER_NAME,
+        data: session
+      });
+
+      return callback(null, { result: JSON.stringify({ sessionId: session.id })});
+    } catch (e) {
+      return callback({ code: grpc.status.INTERNAL, message: e.message });
+    }
   }
 
 }

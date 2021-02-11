@@ -51,6 +51,7 @@ export class PaymentsRoutes {
       refundStripePayment: this.stripeHandlers.refundPayment.bind(this.stripeHandlers),
       getStripePaymentMethods: this.stripeHandlers.getPaymentMethods.bind(this.stripeHandlers),
       completeStripePayment: this.stripeHandlers.completePayment.bind(this.stripeHandlers),
+      subscribeToProductStripe: this.stripeHandlers.subscribeToProduct.bind(this.stripeHandlers),
       addIamportCard: this.iamportHandlers.addCard.bind(this.iamportHandlers),
       validateIamportCard: this.iamportHandlers.validateCard.bind(this.iamportHandlers),
       completeIamportPayment: this.iamportHandlers.completePayment.bind(this.iamportHandlers),
@@ -223,6 +224,25 @@ export class PaymentsRoutes {
             },
             new ConduitRouteReturnDefinition('CompleteStripePaymentResponse', 'String'),
             "completeStripePayment"
+          )
+        )
+      );
+
+      routesArray.push(
+        constructRoute(
+          new ConduitRoute(
+            {
+              path: "/payments/stripe/subscribe",
+              action: ConduitRouteActions.POST,
+              bodyParams: {
+                productId: TYPE.String,
+              },
+              middlewares: ['authMiddleware']
+            },
+            new ConduitRouteReturnDefinition("SubscribeToProductStripeResponse", {
+              sessionId: ConduitString.Required,
+            }),
+            "subscribeToProductStripe"
           )
         )
       );
