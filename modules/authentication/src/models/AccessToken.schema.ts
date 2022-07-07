@@ -34,7 +34,7 @@ const schemaOptions = {
     },
   },
 } as const;
-const collectionName = undefined;
+const collectionName = 'cnd_AccessToken';
 
 export class AccessToken extends ConduitActiveSchema<AccessToken> {
   private static _instance: AccessToken;

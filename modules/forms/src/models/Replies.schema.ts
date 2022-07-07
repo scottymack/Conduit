@@ -31,7 +31,7 @@ const schemaOptions = {
     },
   },
 } as const;
-const collectionName = undefined;
+const collectionName = 'cnd_Replies';
 
 export class FormReplies extends ConduitActiveSchema<FormReplies> {
   private static _instance: FormReplies;
