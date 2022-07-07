@@ -68,7 +68,7 @@ export class MongooseAdapter extends DatabaseAdapter<MongooseSchema> {
     });
   }
 
-  connect() {
+  async connect() {
     this.mongoose = new Mongoose();
     ConduitGrpcSdk.Logger.log('Connecting to database...');
     this.mongoose

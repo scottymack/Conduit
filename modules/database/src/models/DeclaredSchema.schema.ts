@@ -1,7 +1,7 @@
 import { ConduitSchema, TYPE } from '@conduitplatform/grpc-sdk';
 
 export const DeclaredSchema = new ConduitSchema(
-  'cnd_DeclaredSchema',
+  '_DeclaredSchema',
   {
     _id: TYPE.ObjectId,
     name: {
@@ -53,4 +53,5 @@ export const DeclaredSchema = new ConduitSchema(
       },
     },
   },
+  'cnd_DeclaredSchema',
 );

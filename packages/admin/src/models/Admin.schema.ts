@@ -24,7 +24,7 @@ const schemaOptions = {
     },
   },
 } as const;
-const collectionName = undefined;
+const collectionName = 'cnd_Admin';
 
 export class Admin extends ConduitActiveSchema<Admin> {
   private static _instance: Admin;
