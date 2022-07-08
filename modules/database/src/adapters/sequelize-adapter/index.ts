@@ -212,6 +212,21 @@ export class SequelizeAdapter extends DatabaseAdapter<SequelizeSchema> {
     return this.models[schema.name];
   }
 
+  async checkSystemSchemasExistence(): Promise<Boolean> {
+    const tableNames: string[] = (
+      await this.sequelize.query(
+        `select * from pg_tables where schemaname='${sqlSchemaName}';`,
+      )
+    )[0].map((t: any) => t.tablename);
+    const allIncluded = ['_DeclaredSchema', '_PendingSchemas', 'CustomEndpoints'].every(
+      table => tableNames.includes(table),
+    );
+    if (!allIncluded) {
+      return false;
+    }
+    return true;
+  }
+
   async deleteSchema(
     schemaName: string,
     deleteData: boolean,

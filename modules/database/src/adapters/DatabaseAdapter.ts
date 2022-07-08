@@ -55,6 +55,8 @@ export abstract class DatabaseAdapter<T extends Schema> {
 
   protected abstract _createSchemaFromAdapter(schema: ConduitSchema): Promise<Schema>;
 
+  abstract checkSystemSchemasExistence(): Promise<Boolean>;
+
   protected abstract updateCollectionName(
     schema: ConduitSchema,
     setPrefix: boolean,
