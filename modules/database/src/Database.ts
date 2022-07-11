@@ -30,7 +30,11 @@ import { MongooseSchema } from './adapters/mongoose-adapter/MongooseSchema';
 import { SequelizeSchema } from './adapters/sequelize-adapter/SequelizeSchema';
 import { Schema } from './interfaces';
 import { canCreate, canDelete, canModify } from './permissions';
-import { runMigrations } from './migrations';
+import {
+  checkSystemSchemasExistence,
+  renameSystemSchemas,
+  runMigrations,
+} from './migrations';
 import { SchemaController } from './controllers/cms/schema.controller';
 import { CustomEndpointController } from './controllers/customEndpoints/customEndpoint.controller';
 import { status } from '@grpc/grpc-js';
@@ -81,18 +85,22 @@ export default class DatabaseModule extends ManagedModule<void> {
   }
 
   async onServerStart() {
-    const systemSchemasExist = await this._activeAdapter.checkSystemSchemasExistence();
-    await this._activeAdapter.createSchemaFromAdapter(models.DeclaredSchema);
-    this.updateHealth(HealthCheckStatus.SERVING);
-    const modelPromises = Object.values(models).flatMap((model: ConduitSchema) => {
-      if (model.name === '_DeclaredSchema') return [];
-      return this._activeAdapter.createSchemaFromAdapter(model);
-    });
+    const systemSchemasExist = await checkSystemSchemasExistence(this._activeAdapter);
+    if (systemSchemasExist) {
+      await renameSystemSchemas(this._activeAdapter);
+      this.updateHealth(HealthCheckStatus.SERVING);
+    } else {
+      await this._activeAdapter.createSchemaFromAdapter(models.DeclaredSchema);
+      this.updateHealth(HealthCheckStatus.SERVING);
+      const modelPromises = Object.values(models).flatMap((model: ConduitSchema) => {
+        if (model.name === '_DeclaredSchema') return [];
+        return this._activeAdapter.createSchemaFromAdapter(model);
+      });
 
-    await Promise.all(modelPromises);
-    await runMigrations(this._activeAdapter);
-
-    await this._activeAdapter.recoverSchemasFromDatabase();
+      await Promise.all(modelPromises);
+      await runMigrations(this._activeAdapter);
+      await this._activeAdapter.recoverSchemasFromDatabase();
+    }
   }
 
   async onRegister() {

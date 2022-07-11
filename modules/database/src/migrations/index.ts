@@ -10,3 +10,5 @@ export async function runMigrations(
   await migrateCrudOperations(adapter);
   await migrateSecurityClients(adapter);
 }
+
+export * from './collectionNamePrefix.migration';

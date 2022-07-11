@@ -16,7 +16,7 @@ import { sqlSchemaConverter } from '../../introspection/sequelize/utils';
 import { isNil } from 'lodash';
 import { sleep } from '@conduitplatform/grpc-sdk/dist/utilities';
 
-const sqlSchemaName = process.env.SQL_SCHEMA ?? 'public';
+export const sqlSchemaName = process.env.SQL_SCHEMA ?? 'public';
 
 export class SequelizeAdapter extends DatabaseAdapter<SequelizeSchema> {
   connectionUri: string;
