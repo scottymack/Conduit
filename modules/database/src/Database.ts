@@ -99,8 +99,8 @@ export default class DatabaseModule extends ManagedModule<void> {
 
       await Promise.all(modelPromises);
       await runMigrations(this._activeAdapter);
-      await this._activeAdapter.recoverSchemasFromDatabase();
     }
+    // await this._activeAdapter.recoverSchemasFromDatabase();
   }
 
   async onRegister() {

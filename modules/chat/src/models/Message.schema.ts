@@ -39,7 +39,7 @@ const schemaOptions = {
     },
   },
 } as const;
-const collectionName = `cnd_ChatMessage`;
+const collectionName = `cnd_chatmessages`;
 
 export class ChatMessage extends ConduitActiveSchema<ChatMessage> {
   private static _instance: ChatMessage;

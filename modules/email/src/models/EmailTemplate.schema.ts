@@ -40,7 +40,7 @@ const schemaOptions = {
     },
   },
 } as const;
-const collectionName = 'cnd_EmailTemplate';
+const collectionName = 'cnd_emailtemplates';
 
 export class EmailTemplate extends ConduitActiveSchema<EmailTemplate> {
   private static _instance: EmailTemplate;

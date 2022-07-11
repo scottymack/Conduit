@@ -38,7 +38,7 @@ const schemaOptions = {
     },
   },
 } as const;
-const collectionName = 'cnd_RefreshToken';
+const collectionName = 'cnd_refreshtokens';
 
 export class RefreshToken extends ConduitActiveSchema<RefreshToken> {
   private static _instance: RefreshToken;

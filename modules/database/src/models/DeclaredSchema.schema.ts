@@ -53,5 +53,5 @@ export const DeclaredSchema = new ConduitSchema(
       },
     },
   },
-  'cnd_DeclaredSchema',
+  'cnd_declaredschemas',
 );

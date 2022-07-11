@@ -49,7 +49,7 @@ const schemaOptions = {
     },
   },
 } as const;
-const collectionName = 'cnd_SecurityClient';
+const collectionName = 'cnd_securityclients';
 
 export class Client extends ConduitActiveSchema<Client> {
   private static _instance: Client;

@@ -31,5 +31,5 @@ export const PendingSchemas = new ConduitSchema(
       },
     },
   },
-  'cnd_PendingSchemas',
+  'cnd_pendingschemas',
 );

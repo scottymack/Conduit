@@ -30,7 +30,7 @@ const schemaOptions = {
     },
   },
 } as const;
-const collectionName = 'cnd_Service';
+const collectionName = 'cnd_services';
 export class Service extends ConduitActiveSchema<Service> {
   private static _instance: Service;
   _id: string;
