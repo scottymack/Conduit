@@ -43,15 +43,30 @@ export async function renameSystemSchemas(
         return collection.collectionName;
       }
     });
+
     systemSchemaNames.push('_declaredschemas');
     const newCollectionNames = systemSchemaNames.map(collection =>
       collection.startsWith('_') ? `cnd${collection}` : `cnd_${collection}`,
     );
-    await Promise.all(
-      systemSchemaNames.map(async (collection, index) => {
-        await db.collection(collection).rename(newCollectionNames[index]);
-      }),
+    const declaredSchemaNamesPromises = systemSchemaNames.map(
+      async (collection, index) => {
+        await db.collection('_declaredschemas').updateOne(
+          { collectionName: systemSchemaNames[index] },
+          {
+            $set: { collectionName: newCollectionNames[index] },
+          },
+        );
+        console.log(
+          `[declared] Renamed ${systemSchemaNames[index]} to ${newCollectionNames[index]}`,
+        );
+      },
     );
+    const collectionNamesPromises = systemSchemaNames.map(async (collection, index) => {
+      await db.collection(collection).rename(newCollectionNames[index]);
+      console.log('renamed', collection, 'to', newCollectionNames[index]);
+    });
+
+    await Promise.all([declaredSchemaNamesPromises, collectionNamesPromises]);
   } else if (adapter instanceof SequelizeAdapter) {
     const initialCollectionNames = [
       '_DeclaredSchema',

@@ -1,7 +1,7 @@
 import { ConduitSchema, TYPE } from '@conduitplatform/grpc-sdk';
 
 export const PendingSchemas = new ConduitSchema(
-  'cnd_PendingSchemas',
+  '_PendingSchemas',
   {
     _id: TYPE.ObjectId,
     name: {

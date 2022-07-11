@@ -88,19 +88,17 @@ export default class DatabaseModule extends ManagedModule<void> {
     const systemSchemasExist = await checkSystemSchemasExistence(this._activeAdapter);
     if (systemSchemasExist) {
       await renameSystemSchemas(this._activeAdapter);
-      this.updateHealth(HealthCheckStatus.SERVING);
-    } else {
-      await this._activeAdapter.createSchemaFromAdapter(models.DeclaredSchema);
-      this.updateHealth(HealthCheckStatus.SERVING);
-      const modelPromises = Object.values(models).flatMap((model: ConduitSchema) => {
-        if (model.name === '_DeclaredSchema') return [];
-        return this._activeAdapter.createSchemaFromAdapter(model);
-      });
-
-      await Promise.all(modelPromises);
-      await runMigrations(this._activeAdapter);
     }
-    // await this._activeAdapter.recoverSchemasFromDatabase();
+    await this._activeAdapter.createSchemaFromAdapter(models.DeclaredSchema);
+    this.updateHealth(HealthCheckStatus.SERVING);
+    const modelPromises = Object.values(models).flatMap((model: ConduitSchema) => {
+      if (model.name === '_DeclaredSchema') return [];
+      return this._activeAdapter.createSchemaFromAdapter(model);
+    });
+
+    await Promise.all(modelPromises);
+    await runMigrations(this._activeAdapter);
+    await this._activeAdapter.recoverSchemasFromDatabase();
   }
 
   async onRegister() {
