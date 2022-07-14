@@ -4,5 +4,9 @@
 
 tasks:
   - init: sudo apt install -y protobuf-compiler
-    command: yarn install && yarn run build
+    command: |
+      docker run --name mongo -d -p 27027:27017 mongo
+      docker run --name redis -d -p 6379:6379 -d redis
+  - init: yarn install 
+    command: yarn run build
 
