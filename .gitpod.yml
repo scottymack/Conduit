@@ -3,10 +3,6 @@
 # and commit this file to your remote git repository to share the goodness with others.
 
 tasks:
-  - init: apt install -y protobuf-compiler
-  - init: yarn install && yarn run build && make
-    command: |
-      cd ./docker
-      docker-compose up
-
+  - init: sudo apt install -y protobuf-compiler
+    command: yarn install && yarn run build
 
