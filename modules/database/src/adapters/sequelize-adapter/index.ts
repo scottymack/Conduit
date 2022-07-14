@@ -131,7 +131,7 @@ export class SequelizeAdapter extends DatabaseAdapter<SequelizeSchema> {
           canDelete: false,
         },
         cms: {
-          authentication: false,
+          enabled: true,
           crudOperations: {
             create: {
               enabled: false,
@@ -150,7 +150,6 @@ export class SequelizeAdapter extends DatabaseAdapter<SequelizeSchema> {
               authenticated: false,
             },
           },
-          enabled: true,
         },
       },
     });

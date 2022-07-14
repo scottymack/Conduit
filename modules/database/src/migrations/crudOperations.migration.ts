@@ -7,12 +7,11 @@ export async function migrateCrudOperations(
 ) {
   const model = adapter.getSchemaModel('_DeclaredSchema').model;
   const cmsSchemas = await model.findMany({
-    $or: [
-      { 'modelOptions.conduit.cms.crudOperations': true },
-      { 'modelOptions.conduit.cms.crudOperations': false },
-    ],
+    'modelOptions.conduit.cms.crudOperations': { $exists: true },
   });
+
   for (const schema of cmsSchemas) {
+    if (typeof schema.modelOptions.conduit.cms.crudOperations === 'boolean') continue;
     const { crudOperations, authentication, enabled } = schema.modelOptions.conduit.cms;
     const cms = {
       enabled: enabled,

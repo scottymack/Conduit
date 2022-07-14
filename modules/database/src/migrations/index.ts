@@ -7,6 +7,6 @@ import { migrateSecurityClients } from './securityClients.migration';
 export async function runMigrations(
   adapter: DatabaseAdapter<MongooseSchema | SequelizeSchema>,
 ) {
-  await migrateCrudOperations(adapter);
+  // await migrateCrudOperations(adapter);
   await migrateSecurityClients(adapter);
 }
