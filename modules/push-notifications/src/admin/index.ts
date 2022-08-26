@@ -10,6 +10,7 @@ import ConduitGrpcSdk, {
   ConduitString,
   TYPE,
   ConduitRouteObject,
+  RoutePathOptionType,
 } from '@conduitplatform/grpc-sdk';
 import { status } from '@grpc/grpc-js';
 import { isNil } from 'lodash';
@@ -90,8 +91,8 @@ export class AdminHandlers {
         {
           path: '/token/:userId',
           action: ConduitRouteActions.GET,
-          urlParams: {
-            userId: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            userId: { type: RoutePathOptionType.String, required: true },
           },
         },
         new ConduitRouteReturnDefinition('GetNotificationToken', {

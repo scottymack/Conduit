@@ -5,6 +5,7 @@ import ConduitGrpcSdk, {
   ConduitString,
   GrpcError,
   ParsedRouterRequest,
+  RoutePathOptionType,
   RoutingManager,
   UnparsedRouterResponse,
 } from '@conduitplatform/grpc-sdk';
@@ -23,9 +24,9 @@ export class InvitationRoutes {
       {
         path: '/hook/invitations/:answer/:invitationToken',
         action: ConduitRouteActions.GET,
-        urlParams: {
-          answer: ConduitString.Required,
-          invitationToken: ConduitString.Required,
+        pathParams: {
+          answer: { type: RoutePathOptionType.String, required: true },
+          invitationToken: { type: RoutePathOptionType.String, required: true },
         },
       },
       new ConduitRouteReturnDefinition('InvitationResponse', 'String'),
@@ -35,9 +36,9 @@ export class InvitationRoutes {
       {
         path: '/invitations/:answer/:id',
         action: ConduitRouteActions.GET,
-        urlParams: {
-          id: ConduitString.Required,
-          answer: ConduitString.Required,
+        pathParams: {
+          id: { type: RoutePathOptionType.String, required: true },
+          answer: { type: RoutePathOptionType.String, required: true },
         },
         middlewares: ['authMiddleware'],
       },
@@ -80,8 +81,8 @@ export class InvitationRoutes {
       {
         path: '/invitations/cancel/:id',
         action: ConduitRouteActions.DELETE,
-        urlParams: {
-          id: ConduitString.Required,
+        pathParams: {
+          id: { type: RoutePathOptionType.String, required: true },
         },
         middlewares: ['authMiddleware'],
       },
@@ -93,12 +94,11 @@ export class InvitationRoutes {
   async answerInvitation(call: ParsedRouterRequest): Promise<UnparsedRouterResponse> {
     const { id, answer } = call.request.params;
     const { user } = call.request.context;
-    const invitationTokenDoc: InvitationToken | null = await InvitationToken.getInstance().findOne(
-      {
+    const invitationTokenDoc: InvitationToken | null =
+      await InvitationToken.getInstance().findOne({
         _id: id,
         receiver: user._id,
-      },
-    );
+      });
     if (isNil(invitationTokenDoc)) {
       throw new GrpcError(status.NOT_FOUND, 'Invitation not valid');
     }
@@ -129,12 +129,11 @@ export class InvitationRoutes {
   ): Promise<UnparsedRouterResponse> {
     const { invitationToken, answer } = call.request.params;
     const { user } = call.request.context;
-    const invitationTokenDoc: InvitationToken | null = await InvitationToken.getInstance().findOne(
-      {
+    const invitationTokenDoc: InvitationToken | null =
+      await InvitationToken.getInstance().findOne({
         token: invitationToken,
         receiver: user._id,
-      },
-    );
+      });
     if (isNil(invitationTokenDoc)) {
       throw new GrpcError(status.NOT_FOUND, 'Invitation not valid');
     }

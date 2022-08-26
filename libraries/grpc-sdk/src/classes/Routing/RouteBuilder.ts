@@ -1,5 +1,6 @@
 import {
   ConduitModel,
+  ConduitPathOptions,
   ConduitRouteActions,
   ConduitRouteOption,
   ConduitRouteOptions,
@@ -69,8 +70,8 @@ export class RouteBuilder {
     return this;
   }
 
-  urlParams(params: ConduitRouteOption | ConduitModel): RouteBuilder {
-    this._options.urlParams = params;
+  pathParams(params: ConduitPathOptions): RouteBuilder {
+    this._options.pathParams = params;
     return this;
   }
 

@@ -16,6 +16,12 @@ export enum RouteOptionType {
   ObjectId = 'ObjectId',
   JSON = 'JSON',
 }
+export enum RoutePathOptionType {
+  String = 'String',
+  Number = 'Number',
+  Boolean = 'Boolean',
+  ObjectId = 'ObjectId',
+}
 
 export interface ConduitRouteOptionExtended {
   type: RouteOptionType;
@@ -31,6 +37,15 @@ export interface ConduitRouteOption {
     | RouteOptionType[];
 }
 
+export interface ConduitPathOptions {
+  [field: string]: ConduitPathOptionExtended | RoutePathOptionType;
+}
+
+export interface ConduitPathOptionExtended {
+  type: RoutePathOptionType;
+  required: boolean;
+}
+
 export enum ConduitRouteActions {
   GET = 'GET',
   POST = 'POST',
@@ -42,7 +57,7 @@ export enum ConduitRouteActions {
 export interface ConduitRouteOptions {
   queryParams?: ConduitRouteOption | ConduitModel;
   bodyParams?: ConduitRouteOption | ConduitModel;
-  urlParams?: ConduitRouteOption | ConduitModel;
+  pathParams?: ConduitPathOptions;
   action: ConduitRouteActions;
   path: string;
   name?: string;

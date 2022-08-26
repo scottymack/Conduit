@@ -7,6 +7,7 @@ import ConduitGrpcSdk, {
   ConduitString,
   TYPE,
   ConduitRouteObject,
+  RoutePathOptionType,
 } from '@conduitplatform/grpc-sdk';
 import { RouterAdmin } from './router';
 import { SecurityAdmin } from './security';
@@ -88,8 +89,8 @@ export class AdminHandlers {
         {
           path: '/security/client/:id',
           action: ConduitRouteActions.DELETE,
-          urlParams: {
-            id: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
         },
         new ConduitRouteReturnDefinition('DeleteSecurityClient', {
@@ -110,8 +111,8 @@ export class AdminHandlers {
       constructConduitRoute(
         {
           path: '/security/client/:id',
-          urlParams: {
-            id: ConduitString.Required,
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
           action: ConduitRouteActions.UPDATE,
           bodyParams: {

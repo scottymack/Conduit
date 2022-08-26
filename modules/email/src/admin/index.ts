@@ -14,6 +14,7 @@ import ConduitGrpcSdk, {
   TYPE,
   ConduitRouteObject,
   Query,
+  RoutePathOptionType,
 } from '@conduitplatform/grpc-sdk';
 import { status } from '@grpc/grpc-js';
 import to from 'await-to-js';
@@ -101,8 +102,8 @@ export class AdminHandlers {
         {
           path: '/templates/:id',
           action: ConduitRouteActions.PATCH,
-          urlParams: {
-            id: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
           bodyParams: {
             name: ConduitString.Optional,
@@ -132,8 +133,8 @@ export class AdminHandlers {
         {
           path: '/templates/:id',
           action: ConduitRouteActions.DELETE,
-          urlParams: {
-            id: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
         },
         new ConduitRouteReturnDefinition('DeleteTemplate', {

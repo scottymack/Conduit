@@ -39,7 +39,7 @@ message RegisterConduitRouteRequest {
   message ConduitRouteOptions {
     optional string queryParams = 1;
     optional string bodyParams = 2;
-    optional string urlParams = 3;
+    optional string pathParams = 3;
     optional string action = 4;
     string path = 5;
     optional string name = 6;

@@ -12,6 +12,7 @@ import ConduitGrpcSdk, {
   ConduitBoolean,
   ConduitRouteObject,
   Query,
+  RoutePathOptionType,
 } from '@conduitplatform/grpc-sdk';
 import { status } from '@grpc/grpc-js';
 import { isNil } from 'lodash';
@@ -57,8 +58,8 @@ export class AdminRoutes {
         {
           path: '/files/:id',
           action: ConduitRouteActions.GET,
-          urlParams: {
-            id: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
         },
         new ConduitRouteReturnDefinition('File', File.getInstance().fields),
@@ -103,8 +104,8 @@ export class AdminRoutes {
         {
           path: '/files/:id',
           action: ConduitRouteActions.PATCH,
-          urlParams: {
-            id: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
           bodyParams: {
             name: ConduitString.Optional,
@@ -121,8 +122,8 @@ export class AdminRoutes {
         {
           path: '/files/:id',
           action: ConduitRouteActions.DELETE,
-          urlParams: {
-            id: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
         },
         new ConduitRouteReturnDefinition('DeleteFile', {
@@ -134,8 +135,8 @@ export class AdminRoutes {
         {
           path: '/files/:id/url',
           action: ConduitRouteActions.GET,
-          urlParams: {
-            id: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
           queryParams: {
             redirect: ConduitBoolean.Optional,
@@ -151,8 +152,8 @@ export class AdminRoutes {
         {
           path: '/files/:id/data',
           action: ConduitRouteActions.GET,
-          urlParams: {
-            id: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
         },
         new ConduitRouteReturnDefinition('GetFileData', {
@@ -198,8 +199,8 @@ export class AdminRoutes {
         {
           path: '/folders/:id',
           action: ConduitRouteActions.DELETE,
-          urlParams: {
-            id: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
         },
         new ConduitRouteReturnDefinition('DeleteFolder', 'String'),
@@ -240,8 +241,8 @@ export class AdminRoutes {
         {
           path: '/containers/:id',
           action: ConduitRouteActions.DELETE,
-          urlParams: {
-            id: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
         },
         new ConduitRouteReturnDefinition(

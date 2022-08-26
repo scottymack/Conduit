@@ -71,15 +71,15 @@ export class SwaggerGenerator {
     };
 
     if (
-      !isNil(route.input.urlParams) &&
-      (route.input.urlParams as unknown as string) !== ''
+      !isNil(route.input.pathParams) &&
+      (route.input.pathParams as unknown as string) !== ''
     ) {
-      for (const name in route.input.urlParams) {
+      for (const name in route.input.pathParams) {
         routeDoc.parameters.push({
           name,
           in: 'path',
           required: true,
-          schema: this._parser.extractTypes('url', route.input.urlParams, true),
+          schema: this._parser.extractTypes('url', route.input.pathParams, true),
         });
       }
     }

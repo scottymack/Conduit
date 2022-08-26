@@ -9,6 +9,7 @@ import ConduitGrpcSdk, {
   ConduitBoolean,
   ConduitRouteObject,
   constructConduitRoute,
+  RoutePathOptionType,
 } from '@conduitplatform/grpc-sdk';
 import { UserAdmin } from './user';
 import { ServiceAdmin } from './service';
@@ -90,8 +91,8 @@ export class AdminHandlers {
         {
           path: '/users/:id',
           action: ConduitRouteActions.PATCH,
-          urlParams: {
-            id: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
           bodyParams: {
             email: ConduitString.Optional,
@@ -118,8 +119,8 @@ export class AdminHandlers {
         {
           path: '/users/:id',
           action: ConduitRouteActions.DELETE,
-          urlParams: {
-            id: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
         },
         new ConduitRouteReturnDefinition('DeleteUser', 'String'),
@@ -129,8 +130,8 @@ export class AdminHandlers {
         {
           path: '/users/:id/block',
           action: ConduitRouteActions.POST,
-          urlParams: {
-            id: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
         },
         new ConduitRouteReturnDefinition('BlockUser', 'String'),
@@ -140,8 +141,8 @@ export class AdminHandlers {
         {
           path: '/users/:id/unblock',
           action: ConduitRouteActions.POST,
-          urlParams: {
-            id: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
         },
         new ConduitRouteReturnDefinition('UnblockUser', 'String'),
@@ -198,8 +199,8 @@ export class AdminHandlers {
         {
           path: '/services/:id',
           action: ConduitRouteActions.DELETE,
-          urlParams: {
-            id: ConduitString.Required,
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
           name: 'DeleteService',
           description: 'Deletes a service',
@@ -211,8 +212,8 @@ export class AdminHandlers {
         {
           path: '/services/:serviceId/token',
           action: ConduitRouteActions.GET,
-          urlParams: {
-            serviceId: ConduitString.Required,
+          pathParams: {
+            serviceId: { type: RoutePathOptionType.String, required: true },
           },
           name: 'RenewServiceToken',
           description: 'Renews a service token',

@@ -4,6 +4,7 @@ import ConduitGrpcSdk, {
   ConduitRouteActions,
   ConduitRouteReturnDefinition,
   GrpcServer,
+  RoutePathOptionType,
   RoutingManager,
   TYPE,
 } from '@conduitplatform/grpc-sdk';
@@ -25,8 +26,8 @@ export class StorageRoutes {
 
     this._routingManager.route(
       {
-        urlParams: {
-          id: { type: TYPE.String, required: true },
+        pathParams: {
+          id: { type: RoutePathOptionType.String, required: true },
         },
         action: ConduitRouteActions.GET,
         path: '/storage/file/:id',
@@ -37,8 +38,8 @@ export class StorageRoutes {
 
     this._routingManager.route(
       {
-        urlParams: {
-          id: { type: TYPE.String, required: true },
+        pathParams: {
+          id: { type: RoutePathOptionType.String, required: true },
         },
         queryParams: {
           redirect: { type: TYPE.Boolean, required: false },
@@ -71,8 +72,8 @@ export class StorageRoutes {
 
       this._routingManager.route(
         {
-          urlParams: {
-            id: { type: TYPE.String, required: true },
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
           action: ConduitRouteActions.GET,
           middlewares: ['authMiddleware'],
@@ -86,8 +87,8 @@ export class StorageRoutes {
 
       this._routingManager.route(
         {
-          urlParams: {
-            id: { type: TYPE.String, required: true },
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
           action: ConduitRouteActions.DELETE,
           path: '/storage/file/:id',
@@ -101,8 +102,8 @@ export class StorageRoutes {
 
       this._routingManager.route(
         {
-          urlParams: {
-            id: { type: TYPE.String, required: true },
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
           bodyParams: {
             name: TYPE.String,

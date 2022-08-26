@@ -14,6 +14,7 @@ import ConduitGrpcSdk, {
   TYPE,
   ConduitRouteObject,
   Query,
+  RoutePathOptionType,
 } from '@conduitplatform/grpc-sdk';
 import { status } from '@grpc/grpc-js';
 import { isNil } from 'lodash';
@@ -85,8 +86,8 @@ export class AdminHandlers {
         {
           path: '/forms/:formId',
           action: ConduitRouteActions.UPDATE,
-          urlParams: {
-            formId: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            formId: { type: RoutePathOptionType.String, required: true },
           },
           bodyParams: {
             name: ConduitString.Required,
@@ -117,8 +118,8 @@ export class AdminHandlers {
         {
           path: '/replies/:formId',
           action: ConduitRouteActions.GET,
-          urlParams: {
-            formId: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            formId: { type: RoutePathOptionType.String, required: true },
           },
           queryParams: {
             skip: ConduitNumber.Optional,

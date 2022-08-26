@@ -3,6 +3,7 @@ import {
   TYPE,
   ConduitModel,
   ConduitRouteOption,
+  ConduitPathOptions,
 } from '@conduitplatform/grpc-sdk';
 
 export interface ParseResult {
@@ -42,7 +43,7 @@ export interface ProcessingObject {
 export class SwaggerParser extends ConduitParser<ParseResult, ProcessingObject> {
   extractTypes(
     name: string,
-    fields: ConduitModel | ConduitRouteOption | string,
+    fields: ConduitModel | ConduitRouteOption | ConduitPathOptions | string,
     isInput: boolean,
   ): ParseResult {
     this.isInput = isInput;

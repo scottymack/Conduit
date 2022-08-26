@@ -141,7 +141,7 @@ export class RestController extends ConduitRouter {
           validateParams(context.params, {
             ...route.input.bodyParams,
             ...route.input.queryParams,
-            ...route.input.urlParams,
+            ...route.input.pathParams,
           });
           return r;
         })

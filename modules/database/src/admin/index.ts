@@ -9,6 +9,7 @@ import ConduitGrpcSdk, {
   constructConduitRoute,
   GrpcServer,
   RouteOptionType,
+  RoutePathOptionType,
   TYPE,
 } from '@conduitplatform/grpc-sdk';
 import { SequelizeSchema } from '../adapters/sequelize-adapter/SequelizeSchema';
@@ -95,9 +96,10 @@ export class AdminHandlers {
         deleteCustomEndpoint: this.customEndpointsAdmin.deleteCustomEndpoint.bind(
           this.customEndpointsAdmin,
         ),
-        getSchemasWithCustomEndpoints: this.customEndpointsAdmin.getSchemasWithCustomEndpoints.bind(
-          this.customEndpointsAdmin,
-        ),
+        getSchemasWithCustomEndpoints:
+          this.customEndpointsAdmin.getSchemasWithCustomEndpoints.bind(
+            this.customEndpointsAdmin,
+          ),
       })
       .catch((err: Error) => {
         ConduitGrpcSdk.Logger.error('Failed to register admin routes for module!');
@@ -141,8 +143,8 @@ export class AdminHandlers {
         {
           path: '/schemas/:id',
           action: ConduitRouteActions.GET,
-          urlParams: {
-            id: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
         },
         new ConduitRouteReturnDefinition('GetSchema', DeclaredSchema.fields),
@@ -209,8 +211,8 @@ export class AdminHandlers {
         {
           path: '/schemas/:id',
           action: ConduitRouteActions.PATCH,
-          urlParams: {
-            id: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
           bodyParams: {
             name: ConduitString.Optional,
@@ -262,8 +264,8 @@ export class AdminHandlers {
         {
           path: '/schemas/:id',
           action: ConduitRouteActions.DELETE,
-          urlParams: {
-            id: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
           queryParams: {
             deleteData: ConduitBoolean.Required,
@@ -291,8 +293,8 @@ export class AdminHandlers {
         {
           path: '/schemas/:id/toggle',
           action: ConduitRouteActions.POST,
-          urlParams: {
-            id: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
         },
         new ConduitRouteReturnDefinition('ToggleSchema', {
@@ -305,8 +307,8 @@ export class AdminHandlers {
         {
           path: '/schemas/:schemaId/extensions',
           action: ConduitRouteActions.POST,
-          urlParams: {
-            schemaId: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            schemaId: { type: RoutePathOptionType.String, required: true },
           },
           bodyParams: {
             fields: ConduitJson.Required,
@@ -319,8 +321,8 @@ export class AdminHandlers {
         {
           path: '/schemas/:id/permissions',
           action: ConduitRouteActions.PATCH,
-          urlParams: {
-            id: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
           bodyParams: {
             extendable: ConduitBoolean.Optional,
@@ -359,8 +361,8 @@ export class AdminHandlers {
         {
           path: '/introspection/schemas/:id',
           action: ConduitRouteActions.GET,
-          urlParams: {
-            id: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
         },
         new ConduitRouteReturnDefinition('GetSPendingSchema', PendingSchemas.fields),
@@ -398,9 +400,9 @@ export class AdminHandlers {
         {
           path: '/schemas/:schemaName/docs/:id',
           action: ConduitRouteActions.GET,
-          urlParams: {
-            schemaName: { type: RouteOptionType.String, required: true },
-            id: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            schemaName: { type: RoutePathOptionType.String, required: true },
+            id: { type: RoutePathOptionType.String, required: true },
           },
         },
         new ConduitRouteReturnDefinition('GetDocument', TYPE.JSON),
@@ -410,8 +412,8 @@ export class AdminHandlers {
         {
           path: '/schemas/:schemaName/query',
           action: ConduitRouteActions.POST,
-          urlParams: {
-            schemaName: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            schemaName: { type: RoutePathOptionType.String, required: true },
           },
           queryParams: {
             skip: ConduitNumber.Optional,
@@ -431,8 +433,8 @@ export class AdminHandlers {
         {
           path: '/schemas/:schemaName/docs',
           action: ConduitRouteActions.POST,
-          urlParams: {
-            schemaName: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            schemaName: { type: RoutePathOptionType.String, required: true },
           },
           bodyParams: {
             inputDocument: ConduitJson.Required,
@@ -445,8 +447,8 @@ export class AdminHandlers {
         {
           path: '/schemas/:schemaName/docs/many',
           action: ConduitRouteActions.POST,
-          urlParams: {
-            schemaName: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            schemaName: { type: RoutePathOptionType.String, required: true },
           },
           bodyParams: {
             inputDocuments: { type: [TYPE.JSON], required: true },
@@ -461,8 +463,8 @@ export class AdminHandlers {
         {
           path: '/schemas/:schemaName/docs',
           action: ConduitRouteActions.UPDATE,
-          urlParams: {
-            schemaName: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            schemaName: { type: RoutePathOptionType.String, required: true },
           },
           bodyParams: {
             changedDocuments: { type: [TYPE.JSON], required: true },
@@ -477,9 +479,9 @@ export class AdminHandlers {
         {
           path: '/schemas/:schemaName/docs/:id',
           action: ConduitRouteActions.UPDATE,
-          urlParams: {
-            schemaName: { type: RouteOptionType.String, required: true },
-            id: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            schemaName: { type: RoutePathOptionType.String, required: true },
+            id: { type: RoutePathOptionType.String, required: true },
           },
           bodyParams: {
             changedDocument: ConduitJson.Required,
@@ -492,9 +494,9 @@ export class AdminHandlers {
         {
           path: '/schemas/:schemaName/docs/:id',
           action: ConduitRouteActions.DELETE,
-          urlParams: {
-            schemaName: { type: RouteOptionType.String, required: true },
-            id: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            schemaName: { type: RoutePathOptionType.String, required: true },
+            id: { type: RoutePathOptionType.String, required: true },
           },
         },
         new ConduitRouteReturnDefinition('DeleteDocument', 'String'),
@@ -560,8 +562,8 @@ export class AdminHandlers {
         {
           path: '/customEndpoints/:id',
           action: ConduitRouteActions.PATCH,
-          urlParams: {
-            id: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
           bodyParams: {
             selectedSchema: ConduitString.Optional,
@@ -581,8 +583,8 @@ export class AdminHandlers {
         {
           path: '/customEndpoints/:id',
           action: ConduitRouteActions.DELETE,
-          urlParams: {
-            id: { type: RouteOptionType.String, required: true },
+          pathParams: {
+            id: { type: RoutePathOptionType.String, required: true },
           },
         },
         new ConduitRouteReturnDefinition('deleteCustomEndpoint', 'String'),

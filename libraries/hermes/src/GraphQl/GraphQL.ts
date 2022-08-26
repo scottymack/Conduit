@@ -117,7 +117,7 @@ export class GraphQLController extends ConduitRouter {
     const name = input.name ? input.name : input.action.toLowerCase() + uniqueName;
 
     let params = '';
-    if (input.bodyParams || input.queryParams || input.urlParams) {
+    if (input.bodyParams || input.queryParams || input.pathParams) {
       if (input.bodyParams) {
         const parseResult: ParseResult = this._parser.extractTypes(
           name + 'Request',
@@ -133,8 +133,8 @@ export class GraphQLController extends ConduitRouter {
         params = processParams(input.queryParams, params);
       }
 
-      if (input.urlParams) {
-        params = processParams(input.urlParams, params);
+      if (input.pathParams) {
+        params = processParams(input.pathParams, params);
       }
       params = '(' + params + ')';
     }

@@ -14,6 +14,7 @@ import ConduitGrpcSdk, {
   ConduitRouteActions,
   ConduitString,
   ConduitRouteReturnDefinition,
+  RoutePathOptionType,
 } from '@conduitplatform/grpc-sdk';
 import * as templates from '../templates';
 import { AccessToken, Token, TwoFactorSecret, User } from '../models';
@@ -154,8 +155,8 @@ export class LocalHandlers implements IAuthenticationStrategy {
         path: '/hook/verify-email/:verificationToken',
         action: ConduitRouteActions.GET,
         description: `A webhook used to verify user email. This bypasses the need for clientid/secret`,
-        urlParams: {
-          verificationToken: ConduitString.Required,
+        pathParams: {
+          verificationToken: { type: RoutePathOptionType.String, required: true },
         },
       },
       new ConduitRouteReturnDefinition('VerifyEmailResponse', 'String'),
@@ -167,8 +168,8 @@ export class LocalHandlers implements IAuthenticationStrategy {
         path: '/hook/verify-change-email/:verificationToken',
         action: ConduitRouteActions.GET,
         description: `A webhook used to verify an email address change. This bypasses the need for clientid/secret`,
-        urlParams: {
-          verificationToken: ConduitString.Required,
+        pathParams: {
+          verificationToken: { type: RoutePathOptionType.String, required: true },
         },
       },
       new ConduitRouteReturnDefinition('VerifyChangeEmailResponse', 'String'),

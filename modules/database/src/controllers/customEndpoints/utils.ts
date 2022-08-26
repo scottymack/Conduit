@@ -54,10 +54,10 @@ function extractParams(
         if (!resultingObject['queryParams']) resultingObject['queryParams'] = {};
         placement = 'queryParams';
       }
-      // urlParams
+      // pathParams
       else {
-        if (!resultingObject['urlParams']) resultingObject['urlParams'] = {};
-        placement = 'urlParams';
+        if (!resultingObject['pathParams']) resultingObject['pathParams'] = {};
+        placement = 'pathParams';
       }
       resultingObject[placement][r.name] = {
         type: r.array ? [r.type] : r.type,
@@ -116,10 +116,10 @@ export function createCustomEndpointRoute(
     if (params['bodyParams']) {
       route.bodyParams(params['bodyParams']);
     }
-    if (params['urlParams']) {
-      route.urlParams(params['urlParams']);
+    if (params['pathParams']) {
+      route.pathParams(params['pathParams']);
       let pathPostFix = '';
-      Object.keys(params.urlParams).forEach(key => {
+      Object.keys(params.pathParams).forEach(key => {
         pathPostFix += `/:${key}`;
       });
       route.path(`/function/${endpoint.name}` + pathPostFix);

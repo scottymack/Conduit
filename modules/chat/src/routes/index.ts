@@ -12,6 +12,7 @@ import ConduitGrpcSdk, {
   UnparsedRouterResponse,
   UnparsedSocketResponse,
   Query,
+  RoutePathOptionType,
 } from '@conduitplatform/grpc-sdk';
 import { ChatMessage, ChatRoom } from '../models';
 import { isArray, isNil } from 'lodash';
@@ -447,8 +448,8 @@ export class ChatRoutes {
       {
         path: '/rooms/:roomId/addUsers',
         action: ConduitRouteActions.UPDATE,
-        urlParams: {
-          roomId: ConduitString.Required,
+        pathParams: {
+          roomId: { type: RoutePathOptionType.String, required: true },
         },
         bodyParams: {
           users: [TYPE.String],
@@ -463,8 +464,8 @@ export class ChatRoutes {
       {
         path: '/leave/:roomId',
         action: ConduitRouteActions.UPDATE,
-        urlParams: {
-          roomId: ConduitString.Required,
+        pathParams: {
+          roomId: { type: RoutePathOptionType.String, required: true },
         },
         middlewares: ['authMiddleware'],
       },
@@ -476,8 +477,8 @@ export class ChatRoutes {
       {
         path: '/rooms/:id',
         action: ConduitRouteActions.GET,
-        urlParams: {
-          id: ConduitString.Required,
+        pathParams: {
+          id: { type: RoutePathOptionType.String, required: true },
         },
         middlewares: ['authMiddleware'],
       },
@@ -505,8 +506,8 @@ export class ChatRoutes {
       {
         path: '/messages/:id',
         action: ConduitRouteActions.GET,
-        urlParams: {
-          id: ConduitString.Required,
+        pathParams: {
+          id: { type: RoutePathOptionType.String, required: true },
         },
         middlewares: ['authMiddleware'],
       },
@@ -538,8 +539,8 @@ export class ChatRoutes {
         {
           path: '/messages/:messageId',
           action: ConduitRouteActions.DELETE,
-          urlParams: {
-            messageId: ConduitString.Required,
+          pathParams: {
+            messageId: { type: RoutePathOptionType.String, required: true },
           },
           middlewares: ['authMiddleware'],
         },
@@ -553,8 +554,8 @@ export class ChatRoutes {
         {
           path: '/messages/:messageId',
           action: ConduitRouteActions.UPDATE,
-          urlParams: {
-            messageId: ConduitString.Required,
+          pathParams: {
+            messageId: { type: RoutePathOptionType.String, required: true },
           },
           bodyParams: {
             newMessage: ConduitString.Required,

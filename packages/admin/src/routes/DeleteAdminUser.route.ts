@@ -3,6 +3,7 @@ import {
   ConduitRouteActions,
   ConduitRouteParameters,
   ConduitString,
+  RoutePathOptionType,
 } from '@conduitplatform/grpc-sdk';
 import { isNil } from 'lodash';
 import { Admin } from '../models';
@@ -13,8 +14,8 @@ export function deleteAdminUserRoute() {
     {
       path: '/admins/:id',
       action: ConduitRouteActions.DELETE,
-      urlParams: {
-        id: ConduitString.Required,
+      pathParams: {
+        id: { type: RoutePathOptionType.String, required: true },
       },
     },
     new ConduitRouteReturnDefinition('DeleteAdminUser', {
