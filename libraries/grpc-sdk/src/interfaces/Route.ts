@@ -9,11 +9,7 @@ export interface ConduitRouteParameters {
 }
 
 export enum RouteOptionType {
-  String = 'String',
-  Number = 'Number',
-  Boolean = 'Boolean',
   Date = 'Date',
-  ObjectId = 'ObjectId',
   JSON = 'JSON',
 }
 export enum RoutePathOptionType {
@@ -22,9 +18,10 @@ export enum RoutePathOptionType {
   Boolean = 'Boolean',
   ObjectId = 'ObjectId',
 }
+export type RouteOption = RouteOptionType | RoutePathOptionType;
 
 export interface ConduitRouteOptionExtended {
-  type: RouteOptionType;
+  type: RouteOption;
   required: boolean;
 }
 
@@ -33,8 +30,8 @@ export interface ConduitRouteOption {
     | string
     | string[]
     | ConduitRouteOptionExtended
-    | RouteOptionType
-    | RouteOptionType[];
+    | RouteOption
+    | RouteOption[];
 }
 
 export interface ConduitPathOptions {
