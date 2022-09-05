@@ -1,7 +1,10 @@
 import { isNil } from 'lodash';
 import { status } from '@grpc/grpc-js';
-import ConduitGrpcSdk, { GrpcError } from '@conduitplatform/grpc-sdk';
-import { ChatRoom, InvitationToken, User } from '../models';
+import ConduitGrpcSdk, {
+  GrpcError,
+  ParsedRouterRequest,
+} from '@conduitplatform/grpc-sdk';
+import { ChatMessage, ChatRoom, InvitationToken, User } from '../models';
 import { v4 as uuid } from 'uuid';
 
 export async function validateUsersInput(grpcSdk: ConduitGrpcSdk, users: any[]) {
@@ -26,6 +29,23 @@ export async function validateUsersInput(grpcSdk: ConduitGrpcSdk, users: any[]) 
     }
   }
   return usersToBeAdded;
+}
+
+export async function isValidMessage(call: ParsedRouterRequest) {
+  const { messageId } = call.request.params;
+  const { user } = call.request.context;
+  const message = await ChatMessage.getInstance()
+    .findOne({ _id: messageId })
+    .catch((e: Error) => {
+      throw new GrpcError(status.INTERNAL, e.message);
+    });
+  if (isNil(message) || message.senderUser !== user._id) {
+    throw new GrpcError(
+      status.NOT_FOUND,
+      "Message does not exist or you don't have access",
+    );
+  }
+  return { message, messageId };
 }
 
 export async function sendInvitations(

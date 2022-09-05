@@ -16,7 +16,7 @@ import ConduitGrpcSdk, {
 import { ChatMessage, ChatRoom } from '../models';
 import { isArray, isNil } from 'lodash';
 import { status } from '@grpc/grpc-js';
-import { validateUsersInput, sendInvitations } from '../utils';
+import { validateUsersInput, sendInvitations, isValidMessage } from '../utils';
 import { InvitationRoutes } from './InvitationRoutes';
 import * as templates from '../templates';
 
@@ -317,19 +317,9 @@ export class ChatRoutes {
   }
 
   async deleteMessage(call: ParsedRouterRequest): Promise<UnparsedRouterResponse> {
-    const { messageId } = call.request.params;
-    const { user } = call.request.context;
-    const message = await ChatMessage.getInstance()
-      .findOne({ _id: messageId })
-      .catch((e: Error) => {
-        throw new GrpcError(status.INTERNAL, e.message);
-      });
-    if (isNil(message) || message.senderUser !== user._id) {
-      throw new GrpcError(
-        status.NOT_FOUND,
-        "Message does not exist or you don't have access",
-      );
-    }
+    const { messageId } = await isValidMessage(call).catch(e => {
+      throw e;
+    });
     await ChatMessage.getInstance()
       .deleteOne({ _id: messageId })
       .catch((e: Error) => {
@@ -340,20 +330,10 @@ export class ChatRoutes {
   }
 
   async patchMessage(call: ParsedRouterRequest): Promise<UnparsedRouterResponse> {
-    const { messageId, newMessage } = call.request.params;
-    const { user } = call.request.context;
-    const message = await ChatMessage.getInstance()
-      .findOne({ _id: messageId })
-      .catch((e: Error) => {
-        throw new GrpcError(status.INTERNAL, e.message);
-      });
-    if (isNil(message) || message.senderUser !== user._id) {
-      throw new GrpcError(
-        status.NOT_FOUND,
-        "Message does not exist or you don't have access",
-      );
-    }
-    message.message = newMessage;
+    const { messageId, message } = await isValidMessage(call).catch(e => {
+      throw e;
+    });
+    message.message = call.request.params.newMessage;
     await ChatMessage.getInstance()
       .findByIdAndUpdate(message._id, { message })
       .catch((e: Error) => {
