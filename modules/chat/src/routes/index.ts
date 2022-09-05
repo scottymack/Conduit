@@ -267,19 +267,9 @@ export class ChatRoutes {
   }
 
   async getMessage(call: ParsedRouterRequest): Promise<UnparsedRouterResponse> {
-    const { id } = call.request.params;
-    const { user } = call.request.context;
-    const message = await ChatMessage.getInstance()
-      .findOne({ _id: id }, undefined, ['room'])
-      .catch((e: Error) => {
-        throw new GrpcError(status.INTERNAL, e.message);
-      });
-    if (!message || (message.room as ChatRoom).participants.indexOf(user._id) === -1) {
-      throw new GrpcError(
-        status.NOT_FOUND,
-        "Message does not exist or you don't have access",
-      );
-    }
+    const { message } = await isValidMessage(call).catch(e => {
+      throw e;
+    });
     return message;
   }
 
