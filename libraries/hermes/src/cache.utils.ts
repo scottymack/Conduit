@@ -35,7 +35,7 @@ export function extractCachingGql(
   route: ConduitRoute,
   cacheHeader?: string,
 ): { caching: boolean; cacheAge?: number; scope?: CacheScope } {
-  let extracted = extractCaching(route, cacheHeader);
+  const extracted = extractCaching(route, cacheHeader);
   const { caching, cacheAge } = extracted;
   let scope = extracted.scope;
   scope = scope === 'public' ? CacheScope.Public : CacheScope.Private;
