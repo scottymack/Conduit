@@ -47,56 +47,55 @@ export class ConfigStorage {
 
   async firstSync() {
     this.changeState(true);
-    let configDoc: models.Config | null = await this.grpcSdk.database!.findOne(
-      'Config',
+    let configDoc: models.Config[] | null = await models.Config.getInstance().findMany(
       {},
     );
     if (!configDoc) {
-      configDoc = await models.Config.getInstance().create({});
-      configDoc['moduleConfigs'] = {};
+      // flush redis stored configuration to the database
       for (const key in this.serviceDiscovery.registeredModules.keys()) {
         try {
-          configDoc.moduleConfigs[key] = await this.getConfig(key, false);
+          const moduleConfig = await this.getConfig(key, false);
+          await models.Config.getInstance().create({ name: key, config: moduleConfig });
         } catch {}
       }
       for (const key of ['core', 'admin']) {
         try {
-          configDoc.moduleConfigs[key] = await this.getConfig(key, false);
+          const moduleConfig = await this.getConfig(key, false);
+          await models.Config.getInstance().create({ name: key, config: moduleConfig });
         } catch {}
-      }
-      // flush redis stored configuration to the database
-      if (Object.keys(configDoc.moduleConfigs).length > 0) {
-        await models.Config.getInstance().findByIdAndUpdate(configDoc._id, {
-          moduleConfigs: configDoc.moduleConfigs,
-        });
       }
     } else {
       // patch database with new config keys
-      for (const key of Object.keys(configDoc.moduleConfigs)) {
+      for (const key of Object.keys(configDoc)) {
+        const dbConfig = await models.Config.getInstance().findOne({ name: key });
         let redisConfig;
         try {
           redisConfig = await this.getConfig(key, false);
-          redisConfig = { ...redisConfig, ...configDoc!.moduleConfigs[key] };
-          configDoc!.moduleConfigs[key] = redisConfig;
+          redisConfig = { ...redisConfig, ...dbConfig!.config };
         } catch (e) {
-          redisConfig = configDoc!.moduleConfigs[key];
+          redisConfig = dbConfig!.config;
         }
         await this.setConfig(key, JSON.stringify(redisConfig), false);
+        await models.Config.getInstance().findByIdAndUpdate(dbConfig!._id, {
+          config: redisConfig,
+        });
       }
-      await models.Config.getInstance().findByIdAndUpdate(configDoc._id, {
-        moduleConfigs: configDoc.moduleConfigs,
-      });
     }
-    this.configDocId = configDoc._id;
     // Update Admin and all active modules
-    this.commons.getAdmin().handleConfigUpdate(configDoc.moduleConfigs.admin);
+    const adminConfig = await models.Config.getInstance().findOne({ name: 'admin' });
+    this.commons.getAdmin().handleConfigUpdate(adminConfig!.config);
     const registeredModules = Array.from(this.serviceDiscovery.registeredModules.keys());
-    for (const [module, config] of Object.entries(configDoc.moduleConfigs)) {
-      if (module === 'core' || module === 'admin') continue;
-      if (registeredModules.includes(module)) {
-        this.grpcSdk.bus!.publish(`${module}:config:update`, JSON.stringify(config));
+    const moduleConfigs: models.Config[] | null =
+      await models.Config.getInstance().findMany({});
+    moduleConfigs.forEach(config => {
+      if (config.name === 'core' || config.name === 'admin') return;
+      if (registeredModules.includes(config.name)) {
+        this.grpcSdk.bus!.publish(
+          `${config.name}:config:update`,
+          JSON.stringify(config.config),
+        );
       }
-    }
+    });
   }
 
   reconcileMonitor() {
