@@ -3,6 +3,7 @@ import ConduitGrpcSdk from '@conduitplatform/grpc-sdk';
 import { clearInterval } from 'timers';
 import * as models from '../models';
 import { ServiceDiscovery } from '../service-discovery';
+import ConfigManager from '../index';
 
 export class ConfigStorage {
   toBeReconciled: string[] = [];
@@ -51,16 +52,16 @@ export class ConfigStorage {
 
     if (configDoc.length === 0 || !configDoc) {
       // flush redis stored configuration to the database
-      // for (const key in this.serviceDiscovery.registeredModules.keys()) {
-      //   try {
-      //     const moduleConfig = await this.getConfig(key, false);
-      //     const newConfig = await models.Config.getInstance().create({});
-      //     await models.Config.getInstance().findByIdAndUpdate(newConfig._id, {
-      //       name: key,
-      //       config: moduleConfig,
-      //     });
-      //   } catch {}
-      // }
+      for (const key in this.serviceDiscovery.registeredModules.keys()) {
+        try {
+          const moduleConfig = await this.getConfig(key, false);
+          const newConfig = await models.Config.getInstance().create({});
+          await models.Config.getInstance().findByIdAndUpdate(newConfig._id, {
+            name: key,
+            config: moduleConfig,
+          });
+        } catch {}
+      }
       for (const key of ['core', 'admin']) {
         try {
           const moduleConfig = await this.getConfig(key, false);
@@ -121,12 +122,11 @@ export class ConfigStorage {
   reconcile() {
     this.changeState(true);
     const promises = this.toBeReconciled.map(moduleName => {
-      if (moduleName === 'core' || moduleName === 'admin') return;
       return this.getConfig(moduleName, false).then(async config => {
-        const newConfig = await models.Config.getInstance().create({});
-        await models.Config.getInstance().findByIdAndUpdate(newConfig._id, {
-          $set: { name: `${moduleName}`, config: config },
-        });
+        // const dbConfig = await models.Config.getInstance().findOne({ name: moduleName });
+        // await models.Config.getInstance().findByIdAndUpdate(dbConfig!._id, {
+        //   $set: { name: `${moduleName}`, config: config },
+        // });
       });
     });
     Promise.all(promises)
@@ -155,7 +155,9 @@ export class ConfigStorage {
       await this.waitForReconcile();
     }
 
-    const config: string | null = await this.grpcSdk.state!.getKey(`${moduleName}`);
+    const config: string | null = await this.grpcSdk.state!.getKey(
+      `moduleConfigs.${moduleName}`,
+    );
     if (!config) {
       throw new Error('Config not found for ' + moduleName);
     }
@@ -166,7 +168,7 @@ export class ConfigStorage {
     if (waitReconcile) {
       await this.waitForReconcile();
     }
-    await this.grpcSdk.state!.setKey(`${moduleName}`, config);
+    await this.grpcSdk.state!.setKey(`moduleConfigs.${moduleName}`, config);
     if (!this.toBeReconciled.includes(moduleName) && waitReconcile) {
       this.toBeReconciled.push(moduleName);
     }
