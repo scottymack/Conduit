@@ -51,16 +51,16 @@ export class ConfigStorage {
 
     if (configDoc.length === 0 || !configDoc) {
       // flush redis stored configuration to the database
-      for (const key in this.serviceDiscovery.registeredModules.keys()) {
-        try {
-          const moduleConfig = await this.getConfig(key, false);
-          const newConfig = await models.Config.getInstance().create({});
-          await models.Config.getInstance().findByIdAndUpdate(newConfig._id, {
-            name: key,
-            config: moduleConfig,
-          });
-        } catch {}
-      }
+      // for (const key in this.serviceDiscovery.registeredModules.keys()) {
+      //   try {
+      //     const moduleConfig = await this.getConfig(key, false);
+      //     const newConfig = await models.Config.getInstance().create({});
+      //     await models.Config.getInstance().findByIdAndUpdate(newConfig._id, {
+      //       name: key,
+      //       config: moduleConfig,
+      //     });
+      //   } catch {}
+      // }
       for (const key of ['core', 'admin']) {
         try {
           const moduleConfig = await this.getConfig(key, false);
@@ -121,6 +121,7 @@ export class ConfigStorage {
   reconcile() {
     this.changeState(true);
     const promises = this.toBeReconciled.map(moduleName => {
+      if (moduleName === 'core' || moduleName === 'admin') return;
       return this.getConfig(moduleName, false).then(async config => {
         const newConfig = await models.Config.getInstance().create({});
         await models.Config.getInstance().findByIdAndUpdate(newConfig._id, {
