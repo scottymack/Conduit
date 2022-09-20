@@ -7,8 +7,6 @@ import { ServiceDiscovery } from '../service-discovery';
 export class ConfigStorage {
   toBeReconciled: string[] = [];
   reconciling: boolean = false;
-  private configDocId: string | null = null;
-
   constructor(
     private readonly commons: ConduitCommons,
     private readonly grpcSdk: ConduitGrpcSdk,
@@ -76,16 +74,15 @@ export class ConfigStorage {
     } else {
       // patch database with new config keys
       for (const config of configDoc) {
-        const dbConfig = await models.Config.getInstance().findOne({ name: config.name });
         let redisConfig;
         try {
           redisConfig = await this.getConfig(config.name, false);
-          redisConfig = { ...redisConfig, ...dbConfig!.config };
+          redisConfig = { ...redisConfig, ...config.config };
         } catch (e) {
-          redisConfig = dbConfig!.config;
+          redisConfig = config.config;
         }
         await this.setConfig(config.name, JSON.stringify(redisConfig), false);
-        await models.Config.getInstance().findByIdAndUpdate(dbConfig!._id, {
+        await models.Config.getInstance().findByIdAndUpdate(config._id, {
           config: redisConfig,
         });
       }
@@ -124,11 +121,12 @@ export class ConfigStorage {
   reconcile() {
     this.changeState(true);
     const promises = this.toBeReconciled.map(moduleName => {
-      return this.getConfig(moduleName, false).then(config =>
-        models.Config.getInstance().findByIdAndUpdate(this.configDocId!, {
-          $set: { [`moduleConfigs.${moduleName}`]: config },
-        }),
-      );
+      return this.getConfig(moduleName, false).then(async config => {
+        const newConfig = await models.Config.getInstance().create({});
+        await models.Config.getInstance().findByIdAndUpdate(newConfig._id, {
+          $set: { name: `${moduleName}`, config: config },
+        });
+      });
     });
     Promise.all(promises)
       .then(() => {
