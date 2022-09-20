@@ -50,32 +50,41 @@ export class ConfigStorage {
     let configDoc: models.Config[] | null = await models.Config.getInstance().findMany(
       {},
     );
-    if (!configDoc) {
+
+    if (configDoc.length === 0 || !configDoc) {
       // flush redis stored configuration to the database
       for (const key in this.serviceDiscovery.registeredModules.keys()) {
         try {
           const moduleConfig = await this.getConfig(key, false);
-          await models.Config.getInstance().create({ name: key, config: moduleConfig });
+          const newConfig = await models.Config.getInstance().create({});
+          await models.Config.getInstance().findByIdAndUpdate(newConfig._id, {
+            name: key,
+            config: moduleConfig,
+          });
         } catch {}
       }
       for (const key of ['core', 'admin']) {
         try {
           const moduleConfig = await this.getConfig(key, false);
-          await models.Config.getInstance().create({ name: key, config: moduleConfig });
+          const newConfig = await models.Config.getInstance().create({});
+          await models.Config.getInstance().findByIdAndUpdate(newConfig._id, {
+            name: key,
+            config: moduleConfig,
+          });
         } catch {}
       }
     } else {
       // patch database with new config keys
-      for (const key of Object.keys(configDoc)) {
-        const dbConfig = await models.Config.getInstance().findOne({ name: key });
+      for (const config of configDoc) {
+        const dbConfig = await models.Config.getInstance().findOne({ name: config.name });
         let redisConfig;
         try {
-          redisConfig = await this.getConfig(key, false);
+          redisConfig = await this.getConfig(config.name, false);
           redisConfig = { ...redisConfig, ...dbConfig!.config };
         } catch (e) {
           redisConfig = dbConfig!.config;
         }
-        await this.setConfig(key, JSON.stringify(redisConfig), false);
+        await this.setConfig(config.name, JSON.stringify(redisConfig), false);
         await models.Config.getInstance().findByIdAndUpdate(dbConfig!._id, {
           config: redisConfig,
         });
@@ -87,15 +96,15 @@ export class ConfigStorage {
     const registeredModules = Array.from(this.serviceDiscovery.registeredModules.keys());
     const moduleConfigs: models.Config[] | null =
       await models.Config.getInstance().findMany({});
-    moduleConfigs.forEach(config => {
-      if (config.name === 'core' || config.name === 'admin') return;
+    for (const config of moduleConfigs) {
+      if (config.name === 'core' || config.name === 'admin') continue;
       if (registeredModules.includes(config.name)) {
         this.grpcSdk.bus!.publish(
           `${config.name}:config:update`,
           JSON.stringify(config.config),
         );
       }
-    });
+    }
   }
 
   reconcileMonitor() {
@@ -147,9 +156,7 @@ export class ConfigStorage {
       await this.waitForReconcile();
     }
 
-    const config: string | null = await this.grpcSdk.state!.getKey(
-      `moduleConfigs.${moduleName}`,
-    );
+    const config: string | null = await this.grpcSdk.state!.getKey(`${moduleName}`);
     if (!config) {
       throw new Error('Config not found for ' + moduleName);
     }
@@ -160,7 +167,7 @@ export class ConfigStorage {
     if (waitReconcile) {
       await this.waitForReconcile();
     }
-    await this.grpcSdk.state!.setKey(`moduleConfigs.${moduleName}`, config);
+    await this.grpcSdk.state!.setKey(`${moduleName}`, config);
     if (!this.toBeReconciled.includes(moduleName) && waitReconcile) {
       this.toBeReconciled.push(moduleName);
     }
