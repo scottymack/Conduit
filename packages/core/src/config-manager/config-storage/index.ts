@@ -52,7 +52,7 @@ export class ConfigStorage {
 
     if (configDoc.length === 0 || !configDoc) {
       // flush redis stored configuration to the database
-      for (const key in this.serviceDiscovery.registeredModules.keys()) {
+      for (const key of this.serviceDiscovery.registeredModules.keys()) {
         try {
           const moduleConfig = await this.getConfig(key, false);
           const newConfig = await models.Config.getInstance().create({});
