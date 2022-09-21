@@ -1,5 +1,5 @@
 import { ConduitCommons } from '@conduitplatform/commons';
-import ConduitGrpcSdk from '@conduitplatform/grpc-sdk';
+import ConduitGrpcSdk, { GrpcError } from '@conduitplatform/grpc-sdk';
 import { clearInterval } from 'timers';
 import * as models from '../models';
 import { ServiceDiscovery } from '../service-discovery';
@@ -123,10 +123,18 @@ export class ConfigStorage {
     this.changeState(true);
     const promises = this.toBeReconciled.map(moduleName => {
       return this.getConfig(moduleName, false).then(async config => {
-        // const dbConfig = await models.Config.getInstance().findOne({ name: moduleName });
-        // await models.Config.getInstance().findByIdAndUpdate(dbConfig!._id, {
-        //   $set: { name: `${moduleName}`, config: config },
-        // });
+        const dbConfig = await models.Config.getInstance().findOne({ name: moduleName });
+        if (!dbConfig) {
+          //throw new Error('Module configuration not found in database for reconciliation');
+          const newConfig = await models.Config.getInstance().create({});
+          await models.Config.getInstance().findByIdAndUpdate(newConfig._id, {
+            $set: { name: `${moduleName}`, config: config },
+          });
+        } else {
+          await models.Config.getInstance().findByIdAndUpdate(dbConfig._id, {
+            $set: { name: `${moduleName}`, config: config },
+          });
+        }
       });
     });
     Promise.all(promises)
