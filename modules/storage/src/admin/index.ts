@@ -178,6 +178,7 @@ export class AdminRoutes {
             sort: ConduitString.Optional,
             container: ConduitString.Optional,
             parent: ConduitString.Optional,
+            search: ConduitString.Optional,
           },
         },
         new ConduitRouteReturnDefinition('getFolders', {
@@ -278,7 +279,7 @@ export class AdminRoutes {
   }
 
   async getFolders(call: ParsedRouterRequest): Promise<UnparsedRouterResponse> {
-    const { sort } = call.request.params;
+    const { sort, search } = call.request.params;
     const { skip } = call.request.params ?? 0;
     const { limit } = call.request.params ?? 25;
     const query: Query = {
@@ -289,6 +290,9 @@ export class AdminRoutes {
         $regex: `${call.request.params.parent}\/([^\/]+)\/?$`,
         $options: 'i',
       };
+    }
+    if (!isNil(search)) {
+      query.name = { $regex: `.*${search}.*`, $options: 'i' };
     }
     const folders = await _StorageFolder
       .getInstance()
