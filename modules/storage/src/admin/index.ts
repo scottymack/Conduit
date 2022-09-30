@@ -71,8 +71,8 @@ export class AdminRoutes {
           action: ConduitRouteActions.GET,
           description: `Returns queried files.`,
           queryParams: {
-            skip: ConduitNumber.Required,
-            limit: ConduitNumber.Required,
+            skip: ConduitNumber.Optional,
+            limit: ConduitNumber.Optional,
             sort: ConduitString.Optional,
             search: ConduitString.Optional,
             folder: ConduitString.Optional,
@@ -173,8 +173,8 @@ export class AdminRoutes {
           action: ConduitRouteActions.GET,
           description: `Returns queried folders.`,
           queryParams: {
-            skip: ConduitNumber.Required,
-            limit: ConduitNumber.Required,
+            skip: ConduitNumber.Optional,
+            limit: ConduitNumber.Optional,
             sort: ConduitString.Optional,
             container: ConduitString.Optional,
             parent: ConduitString.Optional,
@@ -219,8 +219,8 @@ export class AdminRoutes {
           action: ConduitRouteActions.GET,
           description: `Returns queried containers.`,
           queryParams: {
-            skip: ConduitNumber.Required,
-            limit: ConduitNumber.Required,
+            skip: ConduitNumber.Optional,
+            limit: ConduitNumber.Optional,
             sort: ConduitString.Optional,
           },
         },
@@ -259,7 +259,9 @@ export class AdminRoutes {
   }
 
   async getFiles(call: ParsedRouterRequest): Promise<UnparsedRouterResponse> {
-    const { skip, limit, sort, folder, search } = call.request.params;
+    const { sort, folder, search } = call.request.params;
+    const { skip } = call.request.params ?? 0;
+    const { limit } = call.request.params ?? 25;
     const query: Query = {
       container: call.request.params.container,
     };
