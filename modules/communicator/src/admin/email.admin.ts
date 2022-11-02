@@ -25,7 +25,7 @@ import { Template } from '../email-provider/interfaces/Template';
 
 const escapeStringRegexp = require('escape-string-regexp');
 
-export class AdminHandlers {
+export class EmailAdminHandlers {
   private emailService!: EmailService;
   private readonly routingManager: RoutingManager;
 

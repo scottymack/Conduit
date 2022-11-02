@@ -11,7 +11,7 @@ import { runMigrations } from './migrations';
 import { isNil } from 'lodash';
 import { EmailProvider } from './providers/email-provider';
 import { EmailService } from './services/email.service';
-import { AdminHandlers } from './admin';
+import { EmailAdminHandlers } from './admin/email.admin';
 
 export default class Communicator extends ManagedModule<Config> {
   configSchema = AppConfigSchema;
@@ -28,7 +28,7 @@ export default class Communicator extends ManagedModule<Config> {
   private emailIsRunning: boolean = false;
   private pushNotification: boolean = false;
   private smsIsRunning: boolean = false;
-  private adminRouter!: AdminHandlers;
+  private emailAdminRouter!: EmailAdminHandlers;
   private emailProvider!: EmailProvider;
   private emailService!: EmailService;
   private database!: DatabaseProvider;
@@ -61,6 +61,8 @@ export default class Communicator extends ManagedModule<Config> {
     ) {
       throw new Error('Invalid configuration given');
     }
+
+    // should check also for push notifications and sms
     return config;
   }
 
@@ -71,8 +73,8 @@ export default class Communicator extends ManagedModule<Config> {
       if (!this.emailIsRunning) {
         await this.initEmailProvider();
         this.emailService = new EmailService(this.emailProvider);
-        this.adminRouter = new AdminHandlers(this.grpcServer, this.grpcSdk);
-        this.adminRouter.setEmailService(this.emailService);
+        this.emailAdminRouter = new EmailAdminHandlers(this.grpcServer, this.grpcSdk);
+        this.emailAdminRouter.setEmailService(this.emailService);
         this.emailIsRunning = true;
       } else {
         await this.initEmailProvider(ConfigController.getInstance().config);
@@ -80,6 +82,8 @@ export default class Communicator extends ManagedModule<Config> {
       }
       this.updateHealth(HealthCheckStatus.SERVING);
     }
+
+    //also for sms and push notifications etc
   }
   private async initEmailProvider(newConfig?: Config) {
     const emailConfig = !isNil(newConfig)
