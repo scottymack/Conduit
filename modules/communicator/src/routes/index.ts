@@ -5,8 +5,8 @@ import ConduitGrpcSdk, {
   RoutingManager,
   TYPE,
 } from '@conduitplatform/grpc-sdk';
-import { NotificationToken } from '../models';
 import { NotificationTokensHandler } from '../handlers/notification-tokens';
+import { NotificationToken } from '../models';
 
 export class CommunicatorRoutes {
   private readonly handlers: NotificationTokensHandler;
