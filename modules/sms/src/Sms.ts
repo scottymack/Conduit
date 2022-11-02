@@ -7,7 +7,7 @@ import ConduitGrpcSdk, {
 } from '@conduitplatform/grpc-sdk';
 import AppConfigSchema, { Config } from './config';
 import { AdminHandlers } from './admin';
-import { ISmsProvider } from './interfaces/ISmsProvider';
+import { ISmsProvider } from '../../communicator/src/interfaces/ISmsProvider';
 import { TwilioProvider } from './providers/twilio';
 import path from 'path';
 import { isNil } from 'lodash';

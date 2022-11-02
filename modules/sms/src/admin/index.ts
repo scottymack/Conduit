@@ -10,7 +10,7 @@ import ConduitGrpcSdk, {
 } from '@conduitplatform/grpc-sdk';
 import { status } from '@grpc/grpc-js';
 import { isNil } from 'lodash';
-import { ISmsProvider } from '../interfaces/ISmsProvider';
+import { ISmsProvider } from '../../../communicator/src/interfaces/ISmsProvider';
 
 export class AdminHandlers {
   private provider: ISmsProvider | undefined;
