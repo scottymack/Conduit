@@ -8,7 +8,6 @@ import ConduitGrpcSdk, {
 } from '@conduitplatform/grpc-sdk';
 import path from 'path';
 import AppConfigSchema from './config';
-import { AdminHandlers } from './admin';
 import { EmailService } from './services/email.service';
 import { EmailProvider } from './email-provider';
 import * as models from './models';
@@ -23,6 +22,7 @@ import {
   SendEmailResponse,
 } from './protoTypes/email';
 import metricsSchema from './metrics';
+import { AdminHandlers } from './admin';
 
 export default class Email extends ManagedModule<Config> {
   configSchema = AppConfigSchema;

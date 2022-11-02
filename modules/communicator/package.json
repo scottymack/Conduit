@@ -9,11 +9,12 @@
   },
   "scripts": {
     "start": "node dist/index.js",
-    "prepublish": "npm run build",
-    "build": "rimraf dist && tsc",
     "postbuild": "copyfiles -u 1 src/**/*.proto src/*.proto src/**/*.json ./dist/",
+    "prebuild": "npm run generateTypes",
+    "build": "rimraf dist && tsc",
     "prepare": "npm run build",
-    "build:docker": "docker build -t ghcr.io/conduitplatform/communicator:latest -f ./Dockerfile ../../ && docker push ghcr.io/conduitplatform/communicator:latest"
+    "build:docker": "docker build -t ghcr.io/conduitplatform/email:latest -f ./Dockerfile ../../ && docker push ghcr.io/conduitplatform/comunicator:latest",
+    "generateTypes": "sh build.sh"
   },
   "author": "",
   "license": "ISC",
