@@ -44,16 +44,16 @@ const collectionName = undefined;
 
 export class EmailTemplate extends ConduitActiveSchema<EmailTemplate> {
   private static _instance: EmailTemplate;
-  _id: string;
-  name: string;
+  _id!: string;
+  name!: string;
   subject?: string;
-  body: string;
+  body!: string;
   variables?: string[];
   sender?: string;
-  externalManaged: boolean;
+  externalManaged!: boolean;
   externalId?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 
   private constructor(database: DatabaseProvider) {
     super(database, EmailTemplate.name, schema, modelOptions, collectionName);
