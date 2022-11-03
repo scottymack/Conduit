@@ -12,6 +12,8 @@ import { isNil } from 'lodash';
 import { EmailProvider } from './providers/email-provider';
 import { EmailService } from './services/email.service';
 import { EmailAdminHandlers } from './admin/email.admin';
+import { SmsAdminHandlers } from './admin/sms.admin';
+import { PushNotificationsAdminHandlers } from './admin/pushNotifications.admin';
 
 export default class Communicator extends ManagedModule<Config> {
   configSchema = AppConfigSchema;
@@ -29,6 +31,8 @@ export default class Communicator extends ManagedModule<Config> {
   private pushNotification: boolean = false;
   private smsIsRunning: boolean = false;
   private emailAdminRouter!: EmailAdminHandlers;
+  private smsAdminRouter!: SmsAdminHandlers;
+  private pushNotificationsAdminRouter!: PushNotificationsAdminHandlers;
   private emailProvider!: EmailProvider;
   private emailService!: EmailService;
   private database!: DatabaseProvider;
@@ -62,7 +66,13 @@ export default class Communicator extends ManagedModule<Config> {
       throw new Error('Invalid configuration given');
     }
 
-    // should check also for push notifications and sms
+    if (isNil(config.pushNotifications.active)) {
+      throw new Error('Invalid push notifications configuration');
+    }
+
+    if (isNil(config.sms.active)) {
+      throw new Error('Invalid sms configuration');
+    }
     return config;
   }
 

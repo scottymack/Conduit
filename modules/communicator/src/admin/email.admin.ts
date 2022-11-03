@@ -17,11 +17,11 @@ import ConduitGrpcSdk, {
 import { status } from '@grpc/grpc-js';
 import to from 'await-to-js';
 import { isNil } from 'lodash';
-import { getHandleBarsValues } from '../email-provider/utils';
 import { EmailService } from '../services/email.service';
 import { EmailTemplate } from '../models';
 import { Config } from '../config';
-import { Template } from '../email-provider/interfaces/Template';
+import { getHandleBarsValues } from '../providers/email-provider/utils';
+import { Template } from '../providers/email-provider/interfaces/Template';
 
 const escapeStringRegexp = require('escape-string-regexp');
 
