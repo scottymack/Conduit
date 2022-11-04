@@ -45,7 +45,7 @@ export class EmailAdminHandlers {
     this.routingManager.clear();
     this.routingManager.route(
       {
-        path: '/templates',
+        path: 'email/templates',
         action: ConduitRouteActions.GET,
         description: `Returns queried templates and their total count.`,
         queryParams: {
@@ -63,7 +63,7 @@ export class EmailAdminHandlers {
     );
     this.routingManager.route(
       {
-        path: '/templates',
+        path: 'email/templates',
         action: ConduitRouteActions.POST,
         description: `Creates a new email template.`,
         bodyParams: {
@@ -82,7 +82,7 @@ export class EmailAdminHandlers {
     );
     this.routingManager.route(
       {
-        path: '/templates/:id',
+        path: 'email/templates/:id',
         action: ConduitRouteActions.PATCH,
         description: `Updates an email template.`,
         urlParams: {
@@ -101,7 +101,7 @@ export class EmailAdminHandlers {
     );
     this.routingManager.route(
       {
-        path: '/templates',
+        path: 'email/templates',
         action: ConduitRouteActions.DELETE,
         description: `Deletes queried email templates.`,
         queryParams: {
@@ -115,7 +115,7 @@ export class EmailAdminHandlers {
     );
     this.routingManager.route(
       {
-        path: '/templates/:id',
+        path: 'email/templates/:id',
         action: ConduitRouteActions.DELETE,
         description: `Deletes an email template.`,
         urlParams: {
@@ -129,7 +129,7 @@ export class EmailAdminHandlers {
     );
     this.routingManager.route(
       {
-        path: '/templates/upload',
+        path: 'email/templates/upload',
         action: ConduitRouteActions.POST,
         description: `Uploads a local email template to remote provider.`,
         bodyParams: {
@@ -143,7 +143,7 @@ export class EmailAdminHandlers {
     );
     this.routingManager.route(
       {
-        path: '/externalTemplates',
+        path: 'email/externalTemplates',
         action: ConduitRouteActions.GET,
         description: `Returns external email templates and their total count.`,
       },
@@ -155,7 +155,7 @@ export class EmailAdminHandlers {
     );
     this.routingManager.route(
       {
-        path: '/syncExternalTemplates',
+        path: 'email/syncExternalTemplates',
         action: ConduitRouteActions.UPDATE,
         description: `Synchronizes local email templates from remote provider.`,
       },
@@ -167,7 +167,7 @@ export class EmailAdminHandlers {
     );
     this.routingManager.route(
       {
-        path: '/send',
+        path: 'email/send',
         action: ConduitRouteActions.POST,
         description: `Sends an email.`,
         bodyParams: {
@@ -481,10 +481,10 @@ export class EmailAdminHandlers {
     }
 
     if (sender.indexOf('@') === -1) {
-      const communicatorConfig: Config = await this.grpcSdk.config
+      const emailConfig: Config = await this.grpcSdk.config
         .get('communicator')
         .catch(() => ConduitGrpcSdk.Logger.error('Failed to get sending domain'));
-      sender = sender + `@${communicatorConfig?.email.sendingDomain ?? 'conduit.com'}`;
+      sender = sender + `@${emailConfig?.email.sendingDomain ?? 'conduit.com'}`;
     }
     if (templateName) {
       const templateFound = await EmailTemplate.getInstance().findOne({
@@ -507,7 +507,9 @@ export class EmailAdminHandlers {
         sender: sender ? sender : 'conduit',
       })
       .catch((e: Error) => {
-        ConduitGrpcSdk.Logger.error(e);
+        {
+          ConduitGrpcSdk.Logger.error(e);
+        }
         throw new GrpcError(status.INTERNAL, e.message);
       });
     ConduitGrpcSdk.Metrics?.increment('emails_sent_total');
