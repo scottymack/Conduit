@@ -22,8 +22,6 @@ import {
 } from './interfaces';
 import { TwilioProvider } from './providers/sms-provider/twilio';
 import { OneSignalProvider } from './providers/push-notifications-provider/OneSignal.provider';
-
-import { FirebaseProvider } from '@conduitplatform/push-notifications/dist/providers/Firebase.provider';
 import { PushNotificationsRoutes } from './routes/pushNotifications.routes';
 
 export default class Communicator extends ManagedModule<Config> {
@@ -165,9 +163,9 @@ export default class Communicator extends ManagedModule<Config> {
     const name = notificationsConfig.providerName;
     const settings = notificationsConfig[name];
     if (name === 'firebase') {
-      this._pushNotificationsProvider = new FirebaseProvider(
-        settings as IFirebaseSettings,
-      );
+      // this._pushNotificationsProvider = new FirebaseProvider(
+      //   settings as IFirebaseSettings,
+      // );
     } else if (name === 'onesignal') {
       this._pushNotificationsProvider = new OneSignalProvider(
         settings as IOneSignalSettings,

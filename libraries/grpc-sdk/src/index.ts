@@ -37,6 +37,7 @@ import { ConduitLogger, setupLoki } from './utilities/Logger';
 import winston from 'winston';
 import path from 'path';
 import { ConduitMetrics } from './metrics';
+import { Communicator } from './modules/communicator';
 
 export default class ConduitGrpcSdk {
   private readonly serverUrl: string;
@@ -57,6 +58,7 @@ export default class ConduitGrpcSdk {
     sms: SMS,
     chat: Chat,
     forms: Forms,
+    communicator: Communicator,
   };
   private _dynamicModules: { [key: string]: CompatServiceDefinition } = {};
   private _eventBus?: EventBus;
@@ -231,6 +233,15 @@ export default class ConduitGrpcSdk {
       return this._modules['email'] as Email;
     } else {
       ConduitGrpcSdk.Logger.warn('Email provider not up yet!');
+      return null;
+    }
+  }
+
+  get communicator(): Communicator | null {
+    if (this._modules['communicator']) {
+      return this._modules['communicator'] as Communicator;
+    } else {
+      ConduitGrpcSdk.Logger.warn('Communicator provider not up yet!');
       return null;
     }
   }
