@@ -47,11 +47,7 @@ export class ModuleManager<T> {
     this.module.initialize(this.grpcSdk, this.serviceAddress, this.servicePort);
     try {
       await this.preRegisterLifecycle();
-      await this.grpcSdk.config.registerModule(
-        this.module.name,
-        this.module.address,
-        this.module.healthState,
-      );
+      await this.grpcSdk.config.registerModule(this.module.name, this.module.address);
     } catch (err) {
       ConduitGrpcSdk.Logger.error('Failed to initialize server');
       ConduitGrpcSdk.Logger.error(err as Error);

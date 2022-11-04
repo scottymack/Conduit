@@ -81,20 +81,14 @@ export class Config extends ConduitModule<typeof ConfigDefinition> {
     return this.client!.getRedisDetails(request);
   }
 
-  registerModule(
-    name: string,
-    url: string,
-    healthStatus: Omit<HealthCheckStatus, HealthCheckStatus.SERVICE_UNKNOWN>,
-  ) {
+  registerModule(name: string, url: string) {
     const request: RegisterModuleRequest = {
       moduleName: name.toString(),
       url: url.toString(),
-      healthStatus: healthStatus as number,
     };
     const self = this;
-    return this.client!.registerModule(request).then(res => {
+    return this.client!.registerModule(request).then(() => {
       self.coreLive = true;
-      return res.result;
     });
   }
 

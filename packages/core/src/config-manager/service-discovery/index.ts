@@ -1,6 +1,7 @@
 import { ModuleListResponse, RegisteredModule } from '@conduitplatform/commons';
 import ConduitGrpcSdk, {
   GrpcCallback,
+  GrpcError,
   GrpcRequest,
   GrpcResponse,
   HealthCheckStatus,
@@ -238,27 +239,17 @@ export class ServiceDiscovery {
     }
   }
 
-  async _registerModule(
-    moduleName: string,
-    moduleUrl: string,
-    healthStatus?: HealthCheckStatus,
-    fromGrpc = false,
-  ) {
-    if (fromGrpc && healthStatus === undefined) {
-      throw new Error('No module health status provided');
-    }
-    if (!fromGrpc) {
-      let healthResponse;
-      try {
-        if (!this.grpcSdk.getModule(moduleName)) {
-          healthResponse = await this.grpcSdk.isModuleUp(moduleName, moduleUrl);
-          this.grpcSdk.createModuleClient(moduleName, moduleUrl);
-        }
-      } catch (e) {
-        throw new Error('Failed to register unresponsive module');
+  async _registerModule(moduleName: string, moduleUrl: string) {
+    let healthResponse;
+    try {
+      if (!this.grpcSdk.getModule(moduleName)) {
+        healthResponse = await this.grpcSdk.isModuleUp(moduleName, moduleUrl);
+        this.grpcSdk.createModuleClient(moduleName, moduleUrl);
       }
-      healthStatus = healthResponse.status as unknown as HealthCheckStatus;
+    } catch (e) {
+      throw new Error(`Failed to register ${moduleName} module @ ${moduleUrl}`);
     }
+    const healthStatus = healthResponse.status as unknown as HealthCheckStatus;
     this.registeredModules.set(moduleName, {
       address: moduleUrl,
       serving: healthStatus === HealthCheckStatus.SERVING,
@@ -268,32 +259,17 @@ export class ServiceDiscovery {
       this.grpcSdk.createModuleClient(moduleName, moduleUrl);
     }
 
-    this.updateModuleHealth(
-      moduleName,
-      moduleUrl,
-      fromGrpc ? healthStatus! : HealthCheckStatus.SERVING,
-      false,
-    );
+    this.updateModuleHealth(moduleName, moduleUrl, healthStatus, false);
     this.moduleRegister.emit('serving-modules-update');
   }
 
-  async registerModule(call: any, callback: GrpcResponse<{ result: boolean }>) {
-    if (
-      call.request.status < HealthCheckStatus.UNKNOWN ||
-      call.request.status > HealthCheckStatus.NOT_SERVING
-    ) {
+  async registerModule(call: any, callback: GrpcResponse<null>) {
+    await this._registerModule(call.request.moduleName, call.request.url).catch(err => {
       callback({
-        code: status.INVALID_ARGUMENT,
-        message: 'Invalid module health status code value',
+        code: status.ABORTED,
+        message: err.message,
       });
-      return;
-    }
-    await this._registerModule(
-      call.request.moduleName,
-      call.request.url,
-      call.request.healthStatus as HealthCheckStatus,
-      true,
-    );
+    });
     this.updateState(call.request.moduleName, call.request.url, call.getPeer());
     this.publishModuleData(
       'serving-modules-update',
@@ -301,7 +277,7 @@ export class ServiceDiscovery {
       call.getPeer(),
       call.request.url,
     );
-    callback(null, { result: true });
+    callback(null, null);
   }
 
   moduleExists(
