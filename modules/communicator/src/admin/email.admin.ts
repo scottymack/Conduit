@@ -481,10 +481,10 @@ export class EmailAdminHandlers {
     }
 
     if (sender.indexOf('@') === -1) {
-      const emailConfig: Config = await this.grpcSdk.config
-        .get('email')
+      const communicatorConfig: Config = await this.grpcSdk.config
+        .get('communicator')
         .catch(() => ConduitGrpcSdk.Logger.error('Failed to get sending domain'));
-      sender = sender + `@${emailConfig?.email.sendingDomain ?? 'conduit.com'}`;
+      sender = sender + `@${communicatorConfig?.email.sendingDomain ?? 'conduit.com'}`;
     }
     if (templateName) {
       const templateFound = await EmailTemplate.getInstance().findOne({
@@ -507,9 +507,7 @@ export class EmailAdminHandlers {
         sender: sender ? sender : 'conduit',
       })
       .catch((e: Error) => {
-        {
-          ConduitGrpcSdk.Logger.error(e);
-        }
+        ConduitGrpcSdk.Logger.error(e);
         throw new GrpcError(status.INTERNAL, e.message);
       });
     ConduitGrpcSdk.Metrics?.increment('emails_sent_total');

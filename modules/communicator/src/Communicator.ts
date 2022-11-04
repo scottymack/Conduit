@@ -105,7 +105,7 @@ export default class Communicator extends ManagedModule<Config> {
         this.emailAdminRouter.setEmailService(this.emailService);
         this.emailIsRunning = true;
       } else {
-        await this.initEmailProvider(ConfigController.getInstance().config.email);
+        await this.initEmailProvider(ConfigController.getInstance().config);
         this.emailService.updateProvider(this.emailProvider);
       }
     }
@@ -129,7 +129,7 @@ export default class Communicator extends ManagedModule<Config> {
       ? newConfig
       : await this.grpcSdk.config.get('communicator');
 
-    const { transport, transportSettings } = emailConfig;
+    const { transport, transportSettings } = emailConfig.email;
 
     this.emailProvider = new EmailProvider(transport, transportSettings);
   }
