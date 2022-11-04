@@ -21,9 +21,10 @@ import {
   ISmsProvider,
 } from './interfaces';
 import { TwilioProvider } from './providers/sms-provider/twilio';
-import { FirebaseProvider } from '@conduitplatform/push-notifications/dist/providers/Firebase.provider';
 import { OneSignalProvider } from './providers/push-notifications-provider/OneSignal.provider';
-import { PushNotificationsRoutes } from '@conduitplatform/push-notifications/dist/routes';
+
+import { FirebaseProvider } from '@conduitplatform/push-notifications/dist/providers/Firebase.provider';
+import { PushNotificationsRoutes } from './routes/pushNotifications.routes';
 
 export default class Communicator extends ManagedModule<Config> {
   configSchema = AppConfigSchema;
@@ -38,7 +39,6 @@ export default class Communicator extends ManagedModule<Config> {
     },
   };
   private emailIsRunning: boolean = false;
-  private pushNotification: boolean = false;
   private smsIsRunning: boolean = false;
   private pushNotificationsIsRunning: boolean = false;
   private emailAdminRouter!: EmailAdminHandlers;
@@ -71,23 +71,25 @@ export default class Communicator extends ManagedModule<Config> {
     return Promise.all(promises);
   }
 
-  //   async preConfig(config: Config) {
-  //   //   if (
-  //   //     isNil(config.email.active) ||
-  //   //     isNil(config.email.transport) ||
-  //   //     isNil(config.email.transportSettings)
-  //   //   ) {
-  //   //     throw new Error('Invalid configuration given');
-  //   //   }
-  //   //   if (
-  //   //     isNil(config.active) ||
-  //   //   isNil(config.providerName) ||
-  // //   isNil(config[config.providerName])
-  // // ) {
-  // //   throw new Error('Invalid configuration given');
-  // // }
-  //     return config;
-  //   }
+  async preConfig(config: Config) {
+    if (
+      isNil(config.email.active) ||
+      isNil(config.email.transport) ||
+      isNil(config.email.transportSettings)
+    ) {
+      throw new Error('Invalid configuration given');
+    }
+    if (isNil(config.sms.active) || isNil(config.sms.providerName)) {
+      throw new Error('Invalid configuration given');
+    }
+    if (
+      isNil(config.pushNotifications.active) ||
+      isNil(config.pushNotifications.providerName)
+    ) {
+      throw new Error('Invalid configuration given');
+    }
+    return config;
+  }
 
   async onConfig() {
     const isEmailActive = ConfigController.getInstance().config.email.active;
