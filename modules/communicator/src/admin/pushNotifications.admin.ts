@@ -39,7 +39,7 @@ export class PushNotificationsAdminHandlers {
 
     this.routingManager.route(
       {
-        path: '/send',
+        path: 'push-notifications/send',
         action: ConduitRouteActions.POST,
         description: `Sends a notification.`,
         bodyParams: {
@@ -55,7 +55,7 @@ export class PushNotificationsAdminHandlers {
     );
     this.routingManager.route(
       {
-        path: '/sendToManyDevices',
+        path: 'push-notifications/sendToManyDevices',
         action: ConduitRouteActions.POST,
         description: `Sends a notification to multiple devices.`,
         bodyParams: {
@@ -71,7 +71,7 @@ export class PushNotificationsAdminHandlers {
     );
     this.routingManager.route(
       {
-        path: '/sendMany',
+        path: 'push-notifications/sendMany',
         action: ConduitRouteActions.POST,
         description: `Sends many notifications to many devices.`,
         bodyParams: {
@@ -94,7 +94,7 @@ export class PushNotificationsAdminHandlers {
     );
     this.routingManager.route(
       {
-        path: '/token/:userId',
+        path: 'push-notifications/token/:userId',
         action: ConduitRouteActions.GET,
         description: `Returns a user's notification token.`,
         urlParams: {

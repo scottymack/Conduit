@@ -10,7 +10,7 @@ import ConduitGrpcSdk, {
 } from '@conduitplatform/grpc-sdk';
 import { status } from '@grpc/grpc-js';
 import { isNil } from 'lodash';
-import { ISmsProvider } from '../../../communicator/src/interfaces/ISmsProvider';
+import { ISmsProvider } from '../interfaces';
 
 export class SmsAdminHandlers {
   private provider: ISmsProvider | undefined;
@@ -34,7 +34,7 @@ export class SmsAdminHandlers {
     this.routingManager.clear();
     this.routingManager.route(
       {
-        path: '/send',
+        path: 'sms/send',
         action: ConduitRouteActions.POST,
         description: `Sends sms.`,
         bodyParams: {
