@@ -95,6 +95,11 @@ export default class Communicator extends ManagedModule<Config> {
     this.database = this.grpcSdk.database!;
     await this.registerSchemas();
     await runMigrations(this.grpcSdk);
+    this.smsAdminRouter = new SmsAdminHandlers(
+      this.grpcServer,
+      this.grpcSdk,
+      this._smsProvider,
+    );
   }
 
   protected registerSchemas() {
@@ -183,9 +188,6 @@ export default class Communicator extends ManagedModule<Config> {
     }
     this.smsAdminRouter.updateProvider(this._smsProvider);
     this.smsIsRunning = true;
-    this.updateHealth(
-      this._smsProvider ? HealthCheckStatus.SERVING : HealthCheckStatus.NOT_SERVING,
-    );
   }
 
   private async initPushNotificationsProvider() {

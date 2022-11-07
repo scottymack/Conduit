@@ -34,7 +34,7 @@ export class SmsAdminHandlers {
     this.routingManager.clear();
     this.routingManager.route(
       {
-        path: 'sms/send',
+        path: '/sms/send',
         action: ConduitRouteActions.POST,
         description: `Sends sms.`,
         bodyParams: {
