@@ -166,7 +166,11 @@ export default class Communicator extends ManagedModule<Config> {
     const { transport, transportSettings } = emailConfig.email;
 
     this.emailProvider = new EmailProvider(transport, transportSettings);
-    this.emailAdminRouter = new EmailAdminHandlers(this.grpcServer, this.grpcSdk);
+    this.emailAdminRouter = new EmailAdminHandlers(
+      this.grpcServer,
+      this.grpcSdk,
+      this.routingManager!,
+    );
   }
 
   private async initSmsProvider() {
@@ -235,6 +239,7 @@ export default class Communicator extends ManagedModule<Config> {
       this.pushNotificationsAdminRouter = new PushNotificationsAdminHandlers(
         this.grpcServer,
         this.grpcSdk,
+        this.routingManager!,
         this._pushNotificationsProvider!,
       );
       this.pushNotificationsIsRunning = true;

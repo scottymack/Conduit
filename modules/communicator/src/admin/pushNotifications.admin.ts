@@ -18,15 +18,14 @@ import { ISendNotification } from '../interfaces/ISendNotification';
 
 export class PushNotificationsAdminHandlers {
   private provider: IPushNotificationsProvider;
-  private readonly routingManager: RoutingManager;
 
   constructor(
     private readonly server: GrpcServer,
     private readonly grpcSdk: ConduitGrpcSdk,
+    private readonly routingManager: RoutingManager,
     provider: IPushNotificationsProvider,
   ) {
     this.provider = provider;
-    this.routingManager = new RoutingManager(this.grpcSdk.admin, this.server);
     this.registerAdminRoutes();
   }
 
@@ -35,8 +34,6 @@ export class PushNotificationsAdminHandlers {
   }
 
   private registerAdminRoutes() {
-    this.routingManager.clear();
-
     this.routingManager.route(
       {
         path: 'push-notifications/send',
@@ -106,7 +103,6 @@ export class PushNotificationsAdminHandlers {
       }),
       this.getNotificationToken.bind(this),
     );
-    this.routingManager.registerRoutes();
   }
 
   async sendNotification(call: ParsedRouterRequest): Promise<UnparsedRouterResponse> {

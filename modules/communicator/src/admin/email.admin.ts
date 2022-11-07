@@ -27,13 +27,12 @@ const escapeStringRegexp = require('escape-string-regexp');
 
 export class EmailAdminHandlers {
   private emailService!: EmailService;
-  private readonly routingManager: RoutingManager;
 
   constructor(
     private readonly server: GrpcServer,
     private readonly grpcSdk: ConduitGrpcSdk,
+    private readonly routingManager: RoutingManager,
   ) {
-    this.routingManager = new RoutingManager(grpcSdk.admin, server);
     this.registerAdminRoutes();
   }
 
@@ -42,7 +41,6 @@ export class EmailAdminHandlers {
   }
 
   private registerAdminRoutes() {
-    this.routingManager.clear();
     this.routingManager.route(
       {
         path: 'email/templates',
@@ -184,7 +182,6 @@ export class EmailAdminHandlers {
       }),
       this.sendEmail.bind(this),
     );
-    this.routingManager.registerRoutes();
   }
 
   async getTemplates(call: ParsedRouterRequest): Promise<UnparsedRouterResponse> {
