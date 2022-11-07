@@ -25,7 +25,6 @@ import {
   ISmsProvider,
 } from './interfaces';
 import { TwilioProvider } from './providers/sms-provider/twilio';
-import { OneSignalProvider } from './providers/push-notifications-provider/OneSignal.provider';
 import { PushNotificationsRoutes } from './routes/pushNotifications.routes';
 import { status } from '@grpc/grpc-js';
 import {
@@ -50,6 +49,8 @@ import {
   SetNotificationTokenRequest,
   SetNotificationTokenResponse,
 } from './types';
+import { FirebaseProvider } from './providers/push-notifications-provider/Firebase.provider';
+import { OneSignalProvider } from './providers/push-notifications-provider/OneSignal.provider';
 
 export default class Communicator extends ManagedModule<Config> {
   configSchema = AppConfigSchema;
@@ -145,16 +146,10 @@ export default class Communicator extends ManagedModule<Config> {
       }
     }
     if (isSmsActive) {
-      if (!this.smsIsRunning) {
-      } else {
-        await this.initSmsProvider();
-      }
+      await this.initSmsProvider();
     }
     if (isPushNotificationsActive) {
-      if (!this.pushNotificationsIsRunning) {
-      } else {
-        await this.enableModule();
-      }
+      await this.enableModule();
     }
     this.updateHealth(HealthCheckStatus.SERVING);
   }
@@ -170,9 +165,9 @@ export default class Communicator extends ManagedModule<Config> {
   }
 
   private async initSmsProvider() {
-    const smsConfig = ConfigController.getInstance().config;
+    const smsConfig = await this.grpcSdk.config.get('communicator');
     const name = smsConfig.sms.providerName;
-    const settings = smsConfig[name].sms;
+    const settings = smsConfig.sms[name];
 
     if (name === 'twilio') {
       try {
@@ -186,7 +181,7 @@ export default class Communicator extends ManagedModule<Config> {
       ConduitGrpcSdk.Logger.error('SMS provider not supported');
       return;
     }
-    this.smsAdminRouter.updateProvider(this._smsProvider!);
+    this.smsAdminRouter.updateProvider(this._smsProvider);
     this.smsIsRunning = true;
     this.updateHealth(
       this._smsProvider ? HealthCheckStatus.SERVING : HealthCheckStatus.NOT_SERVING,
@@ -196,11 +191,11 @@ export default class Communicator extends ManagedModule<Config> {
   private async initPushNotificationsProvider() {
     const notificationsConfig = await this.grpcSdk.config.get('communicator');
     const name = notificationsConfig.pushNotifications.providerName;
-    const settings = notificationsConfig[name].pushNotifications;
+    const settings = notificationsConfig.pushNotifications[name];
     if (name === 'firebase') {
-      // this._pushNotificationsProvider = new FirebaseProvider(
-      //   settings as IFirebaseSettings,
-      // );
+      this._pushNotificationsProvider = new FirebaseProvider(
+        settings as IFirebaseSettings,
+      );
     } else if (name === 'onesignal') {
       this._pushNotificationsProvider = new OneSignalProvider(
         settings as IOneSignalSettings,
