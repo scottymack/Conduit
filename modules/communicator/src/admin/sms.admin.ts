@@ -14,15 +14,14 @@ import { ISmsProvider } from '../interfaces';
 
 export class SmsAdminHandlers {
   private provider: ISmsProvider | undefined;
-  private readonly routingManager: RoutingManager;
 
   constructor(
     private readonly server: GrpcServer,
     private readonly grpcSdk: ConduitGrpcSdk,
+    private readonly routingManager: RoutingManager,
     provider: ISmsProvider | undefined,
   ) {
     this.provider = provider;
-    this.routingManager = new RoutingManager(this.grpcSdk.admin, this.server);
     this.registerAdminRoutes();
   }
 
@@ -31,7 +30,6 @@ export class SmsAdminHandlers {
   }
 
   private registerAdminRoutes() {
-    this.routingManager.clear();
     this.routingManager.route(
       {
         path: '/sms/send',
@@ -45,7 +43,6 @@ export class SmsAdminHandlers {
       new ConduitRouteReturnDefinition('SendSMS', 'String'),
       this.sendSms.bind(this),
     );
-    this.routingManager.registerRoutes();
   }
 
   async sendSms(call: ParsedRouterRequest): Promise<UnparsedRouterResponse> {

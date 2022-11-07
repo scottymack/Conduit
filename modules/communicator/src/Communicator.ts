@@ -5,6 +5,7 @@ import ConduitGrpcSdk, {
   GrpcRequest,
   HealthCheckStatus,
   ManagedModule,
+  RoutingManager,
 } from '@conduitplatform/grpc-sdk';
 import path from 'path';
 import AppConfigSchema, { Config } from './config';
@@ -84,6 +85,7 @@ export default class Communicator extends ManagedModule<Config> {
   private database!: DatabaseProvider;
   private _smsProvider: ISmsProvider | undefined;
   private _pushNotificationsProvider: IPushNotificationsProvider | undefined;
+  private routingManager: RoutingManager | undefined;
 
   constructor() {
     super('communicator');
@@ -91,15 +93,11 @@ export default class Communicator extends ManagedModule<Config> {
   }
 
   async onServerStart() {
+    this.routingManager = new RoutingManager(this.grpcSdk.admin, this.grpcServer);
     await this.grpcSdk.waitForExistence('database');
     this.database = this.grpcSdk.database!;
     await this.registerSchemas();
     await runMigrations(this.grpcSdk);
-    this.smsAdminRouter = new SmsAdminHandlers(
-      this.grpcServer,
-      this.grpcSdk,
-      this._smsProvider,
-    );
   }
 
   protected registerSchemas() {
@@ -131,6 +129,7 @@ export default class Communicator extends ManagedModule<Config> {
   }
 
   async onConfig() {
+    this.routingManager?.clear();
     const isEmailActive = ConfigController.getInstance().config.email.active;
     const isSmsActive = ConfigController.getInstance().config.sms.active;
     const isPushNotificationsActive =
@@ -142,7 +141,6 @@ export default class Communicator extends ManagedModule<Config> {
       if (!this.emailIsRunning) {
         await this.initEmailProvider();
         this.emailService = new EmailService(this.emailProvider);
-        this.emailAdminRouter = new EmailAdminHandlers(this.grpcServer, this.grpcSdk);
         this.emailAdminRouter.setEmailService(this.emailService);
         this.emailIsRunning = true;
       } else {
@@ -157,6 +155,7 @@ export default class Communicator extends ManagedModule<Config> {
       await this.enableModule();
     }
     this.updateHealth(HealthCheckStatus.SERVING);
+    this.routingManager?.registerRoutes();
   }
 
   private async initEmailProvider(newConfig?: Config) {
@@ -167,13 +166,13 @@ export default class Communicator extends ManagedModule<Config> {
     const { transport, transportSettings } = emailConfig.email;
 
     this.emailProvider = new EmailProvider(transport, transportSettings);
+    this.emailAdminRouter = new EmailAdminHandlers(this.grpcServer, this.grpcSdk);
   }
 
   private async initSmsProvider() {
     const smsConfig = await this.grpcSdk.config.get('communicator');
     const name = smsConfig.sms.providerName;
     const settings = smsConfig.sms[name];
-
     if (name === 'twilio') {
       try {
         this._smsProvider = new TwilioProvider(settings);
@@ -186,6 +185,12 @@ export default class Communicator extends ManagedModule<Config> {
       ConduitGrpcSdk.Logger.error('SMS provider not supported');
       return;
     }
+    this.smsAdminRouter = new SmsAdminHandlers(
+      this.grpcServer,
+      this.grpcSdk,
+      this.routingManager!,
+      this._smsProvider,
+    );
     this.smsAdminRouter.updateProvider(this._smsProvider);
     this.smsIsRunning = true;
   }
