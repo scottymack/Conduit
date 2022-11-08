@@ -214,6 +214,13 @@ export default class Communicator extends ManagedModule<Config> {
     } else {
       throw new Error('Provider not supported');
     }
+    this.pushNotificationsAdminRouter = new PushNotificationsAdminHandlers(
+      this.grpcServer,
+      this.grpcSdk,
+      this.routingManager!,
+      this._pushNotificationsProvider!,
+    );
+    this.pushNotificationsIsRunning = true;
   }
 
   private async enableModule() {
@@ -235,14 +242,6 @@ export default class Communicator extends ManagedModule<Config> {
           }
         });
       }
-
-      this.pushNotificationsAdminRouter = new PushNotificationsAdminHandlers(
-        this.grpcServer,
-        this.grpcSdk,
-        this.routingManager!,
-        this._pushNotificationsProvider!,
-      );
-      this.pushNotificationsIsRunning = true;
     } else {
       await this.initPushNotificationsProvider();
       if (
