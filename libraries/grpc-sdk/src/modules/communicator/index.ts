@@ -1,10 +1,10 @@
 import { ConduitModule } from '../../classes/ConduitModule';
-import { CommunicatorDefinition } from '../../protoUtils/communicator';
 import {
+  CommunicatorDefinition,
   SendSmsResponse,
   SendVerificationCodeResponse,
   VerifyResponse,
-} from '../../protoUtils/sms';
+} from '../../protoUtils/communicator';
 
 export class Communicator extends ConduitModule<typeof CommunicatorDefinition> {
   constructor(private readonly moduleName: string, url: string, grpcToken?: string) {

@@ -6,7 +6,7 @@ import ConduitGrpcSdk, {
   GrpcError,
   ParsedRouterRequest,
   RoutingManager,
-  SMS,
+  Communicator,
   UnparsedRouterResponse,
 } from '@conduitplatform/grpc-sdk';
 import { isNil } from 'lodash';
@@ -19,7 +19,7 @@ import { TokenProvider } from './tokenProvider';
 import { v4 as uuid } from 'uuid';
 
 export class PhoneHandlers implements IAuthenticationStrategy {
-  private sms: SMS;
+  private communicator: Communicator;
   private initialized: boolean = false;
 
   constructor(private readonly grpcSdk: ConduitGrpcSdk) {}
@@ -28,7 +28,7 @@ export class PhoneHandlers implements IAuthenticationStrategy {
     const config = ConfigController.getInstance().config;
     const isAvailable = this.grpcSdk.isAvailable('sms');
     if (config.phoneAuthentication.enabled && isAvailable) {
-      this.sms = this.grpcSdk.sms!;
+      this.communicator = this.grpcSdk.communicator!;
       ConduitGrpcSdk.Logger.log('Phone authentication is available');
       return (this.initialized = true);
     } else {
@@ -132,7 +132,10 @@ export class PhoneHandlers implements IAuthenticationStrategy {
       });
     }
 
-    const verificationSid = await AuthUtils.sendVerificationCode(this.sms!, phone);
+    const verificationSid = await AuthUtils.sendVerificationCode(
+      this.communicator!,
+      phone,
+    );
     if (verificationSid === '') {
       throw new GrpcError(status.INTERNAL, 'Could not send verification code');
     }

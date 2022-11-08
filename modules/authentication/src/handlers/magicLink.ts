@@ -6,7 +6,7 @@ import ConduitGrpcSdk, {
   ConduitRouteReturnDefinition,
   ConduitString,
   ConfigController,
-  Email,
+  Communicator,
   GrpcError,
   ParsedRouterRequest,
   RoutingManager,
@@ -19,7 +19,7 @@ import { TokenProvider } from './tokenProvider';
 import { MagicLinkTemplate as magicLinkTemplate } from '../templates';
 
 export class MagicLinkHandlers implements IAuthenticationStrategy {
-  private emailModule: Email;
+  private communicator: Communicator;
   private initialized: boolean = false;
 
   constructor(private readonly grpcSdk: ConduitGrpcSdk) {}
@@ -27,7 +27,7 @@ export class MagicLinkHandlers implements IAuthenticationStrategy {
   async validate(): Promise<boolean> {
     const config = ConfigController.getInstance().config;
     if (config.magic_link.enabled && this.grpcSdk.isAvailable('email')) {
-      this.emailModule = this.grpcSdk.emailProvider!;
+      this.communicator = this.grpcSdk.communicator!;
       const success = await this.registerTemplate()
         .then(() => true)
         .catch(e => {
@@ -100,7 +100,7 @@ export class MagicLinkHandlers implements IAuthenticationStrategy {
 
     const result = { token, hostUrl: url };
     const link = `${result.hostUrl}/hook/authentication/magic-link/${result.token.token}`;
-    await this.emailModule.sendEmail('MagicLink', {
+    await this.communicator.sendEmail('MagicLink', {
       email: user.email,
       sender: 'no-reply',
       variables: {
@@ -143,6 +143,6 @@ export class MagicLinkHandlers implements IAuthenticationStrategy {
   }
 
   private registerTemplate() {
-    return this.emailModule.registerTemplate(magicLinkTemplate);
+    return this.communicator.registerTemplate(magicLinkTemplate);
   }
 }

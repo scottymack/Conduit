@@ -7,7 +7,7 @@ import ConduitGrpcSdk, {
   Indexable,
   ParsedRouterRequest,
   RoutingManager,
-  SMS,
+  Communicator,
   UnparsedRouterResponse,
 } from '@conduitplatform/grpc-sdk';
 import { isNil } from 'lodash';
@@ -24,7 +24,7 @@ import { randomInt } from 'crypto';
 import { TwoFactorBackUpCodes } from '../models';
 
 export class TwoFa implements IAuthenticationStrategy {
-  private smsModule: SMS;
+  private communicatorModule: Communicator;
 
   constructor(private readonly grpcSdk: ConduitGrpcSdk) {}
 
@@ -160,7 +160,7 @@ export class TwoFa implements IAuthenticationStrategy {
     }
     if (user.twoFaMethod === 'sms') {
       const verificationSid = await AuthUtils.sendVerificationCode(
-        this.smsModule,
+        this.communicatorModule,
         user.phoneNumber!,
       );
       if (verificationSid === '') {
@@ -255,7 +255,7 @@ export class TwoFa implements IAuthenticationStrategy {
   > {
     if (user.twoFaMethod === 'phone') {
       const verificationSid = await AuthUtils.sendVerificationCode(
-        this.smsModule,
+        this.communicatorModule,
         user.phoneNumber!,
       );
       if (verificationSid === '') {
@@ -373,7 +373,7 @@ export class TwoFa implements IAuthenticationStrategy {
         status.INVALID_ARGUMENT,
         'No verification record for this user',
       );
-    const verified = await this.smsModule.verify(verificationRecord.token, code);
+    const verified = await this.communicatorModule.verify(verificationRecord.token, code);
     if (!verified.verified) {
       throw new GrpcError(status.UNAUTHENTICATED, 'email and code do not match');
     }
@@ -471,7 +471,7 @@ export class TwoFa implements IAuthenticationStrategy {
       });
     }
     const verificationSid = await AuthUtils.sendVerificationCode(
-      this.smsModule,
+      this.communicatorModule,
       phoneNumber,
     );
     if (verificationSid === '') {

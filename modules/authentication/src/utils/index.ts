@@ -1,7 +1,11 @@
 import * as crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcrypt';
-import ConduitGrpcSdk, { GrpcError, Indexable, SMS } from '@conduitplatform/grpc-sdk';
+import ConduitGrpcSdk, {
+  GrpcError,
+  Indexable,
+  Communicator,
+} from '@conduitplatform/grpc-sdk';
 import { Token, User } from '../models';
 import { isNil } from 'lodash';
 import { status } from '@grpc/grpc-js';
@@ -81,7 +85,7 @@ export namespace AuthUtils {
     token: Token,
     code: string,
   ): Promise<boolean> {
-    const verified = await grpcSdk.sms!.verify(token.data.verification, code);
+    const verified = await grpcSdk.communicator!.verify(token.data.verification, code);
     if (!verified.verified) {
       return false;
     }
@@ -98,8 +102,8 @@ export namespace AuthUtils {
     return true;
   }
 
-  export async function sendVerificationCode(sms: SMS, to: string) {
-    const verificationSid = await sms.sendVerificationCode(to);
+  export async function sendVerificationCode(communicator: Communicator, to: string) {
+    const verificationSid = await communicator.sendVerificationCode(to);
     return verificationSid.verificationSid || '';
   }
 

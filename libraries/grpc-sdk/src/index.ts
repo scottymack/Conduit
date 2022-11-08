@@ -4,11 +4,9 @@ import {
   Config,
   Core,
   DatabaseProvider,
-  Email,
   Forms,
-  PushNotifications,
   Router,
-  SMS,
+  Communicator,
   Storage,
   Authorization,
   Authentication,
@@ -37,7 +35,6 @@ import { ConduitLogger, setupLoki } from './utilities/Logger';
 import winston from 'winston';
 import path from 'path';
 import { ConduitMetrics } from './metrics';
-import { Communicator } from './modules';
 
 export default class ConduitGrpcSdk {
   private readonly serverUrl: string;

@@ -3,16 +3,14 @@ import { Channel, Client, createChannel, createClientFactory } from 'nice-grpc';
 import { getModuleNameInterceptor } from './utils';
 import { HealthCheckResponse, HealthDefinition } from '../protoUtils/grpc_health_check';
 import { EventEmitter } from 'events';
-import { EmailDefinition } from '../protoUtils/email';
 import { RouterDefinition } from '../protoUtils/router';
 import { DatabaseProviderDefinition } from '../protoUtils/database';
 import { StorageDefinition } from '../protoUtils/storage';
-import { PushNotificationsDefinition } from '../protoUtils/push-notifications';
 import { AuthenticationDefinition } from '../protoUtils/authentication';
 import { AuthorizationDefinition } from '../protoUtils/authorization';
-import { SmsDefinition } from '../protoUtils/sms';
 import { ChatDefinition } from '../protoUtils/chat';
 import { FormsDefinition } from '../protoUtils/forms';
+import { CommunicatorDefinition } from '../protoUtils/communicator';
 
 export default class MockModule<T extends CompatServiceDefinition> {
   private _client: Client<T>;
@@ -24,11 +22,9 @@ export default class MockModule<T extends CompatServiceDefinition> {
     router: RouterDefinition,
     database: DatabaseProviderDefinition,
     storage: StorageDefinition,
-    email: EmailDefinition,
-    pushNotifications: PushNotificationsDefinition,
     authentication: AuthenticationDefinition,
     authorization: AuthorizationDefinition,
-    sms: SmsDefinition,
+    communicator: CommunicatorDefinition,
     chat: ChatDefinition,
     forms: FormsDefinition,
   };

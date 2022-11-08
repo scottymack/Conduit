@@ -8,7 +8,7 @@ import ConduitGrpcSdk, {
   ConduitRouteReturnDefinition,
   ConduitString,
   ConfigController,
-  Email,
+  Communicator,
   GrpcError,
   ParsedRouterRequest,
   RoutingManager,
@@ -21,7 +21,7 @@ import { IAuthenticationStrategy } from '../interfaces/AuthenticationStrategy';
 import { TokenProvider } from './tokenProvider';
 
 export class LocalHandlers implements IAuthenticationStrategy {
-  private emailModule: Email;
+  private communicator: Communicator;
   private initialized: boolean = false;
   private clientValidation: boolean;
 
@@ -218,7 +218,7 @@ export class LocalHandlers implements IAuthenticationStrategy {
       });
       const result = { verificationToken, hostUrl: url };
       const link = `${result.hostUrl}/hook/authentication/verify-email/${result.verificationToken.token}`;
-      await this.emailModule
+      await this.communicator
         .sendEmail('EmailVerification', {
           email: user.email,
           sender: 'no-reply',
@@ -292,7 +292,7 @@ export class LocalHandlers implements IAuthenticationStrategy {
     const appUrl = config.local.forgot_password_redirect_uri;
     const link = `${appUrl}?reset_token=${passwordResetTokenDoc.token}`;
     if (config.local.verification.send_email && this.grpcSdk.isAvailable('email')) {
-      await this.emailModule.sendEmail('ForgotPassword', {
+      await this.communicator.sendEmail('ForgotPassword', {
         email: user.email,
         sender: 'no-reply',
         variables: {
@@ -417,7 +417,7 @@ export class LocalHandlers implements IAuthenticationStrategy {
         const link = `${result.hostUrl}/hook/authentication/verify-change-email/${
           result.verificationToken!.token
         }`;
-        await this.emailModule
+        await this.communicator
           .sendEmail('ChangeEmailVerification', {
             email: newEmail,
             sender: 'no-reply',
@@ -557,7 +557,7 @@ export class LocalHandlers implements IAuthenticationStrategy {
     const serverConfig = await this.grpcSdk.config.get('router');
     const result = { token: verificationToken.token, hostUrl: serverConfig.hostUrl };
     const link = `${result.hostUrl}/hook/authentication/verify-email/${result.token}`;
-    await this.emailModule.sendEmail('EmailVerification', {
+    await this.communicator.sendEmail('EmailVerification', {
       email: email,
       sender: 'no-reply',
       variables: {
@@ -590,7 +590,7 @@ export class LocalHandlers implements IAuthenticationStrategy {
     const config = ConfigController.getInstance().config;
 
     if (config.local.verification.send_email && this.grpcSdk.isAvailable('email')) {
-      this.emailModule = this.grpcSdk.emailProvider!;
+      this.communicator = this.grpcSdk.communicator!;
     }
 
     if (config.local.verification.send_email && this.grpcSdk.isAvailable('email')) {
@@ -601,7 +601,7 @@ export class LocalHandlers implements IAuthenticationStrategy {
 
   private registerTemplates() {
     const promises = Object.values(templates).map(template => {
-      return this.emailModule.registerTemplate(template);
+      return this.communicator.registerTemplate(template);
     });
     Promise.all(promises)
       .then(() => {
