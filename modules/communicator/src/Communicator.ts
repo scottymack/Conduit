@@ -155,7 +155,7 @@ export default class Communicator extends ManagedModule<Config> {
       await this.enableModule();
     }
     this.updateHealth(HealthCheckStatus.SERVING);
-    this.routingManager?.registerRoutes();
+    await this.routingManager?.registerRoutes();
   }
 
   private async initEmailProvider(newConfig?: Config) {
