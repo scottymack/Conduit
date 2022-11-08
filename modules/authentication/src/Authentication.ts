@@ -108,13 +108,7 @@ export default class Authentication extends ManagedModule<Config> {
   initMonitors() {
     if (this.monitorsActive) return;
     this.monitorsActive = true;
-    this.grpcSdk.monitorModule('email', async () => {
-      this.refreshAppRoutes();
-    });
-    this.grpcSdk.monitorModule('sms', async () => {
-      this.refreshAppRoutes();
-    });
-    this.grpcSdk.monitorModule('router', async () => {
+    this.grpcSdk.monitorModule('communicator', async () => {
       this.refreshAppRoutes();
     });
   }
@@ -122,9 +116,7 @@ export default class Authentication extends ManagedModule<Config> {
   destroyMonitors() {
     if (!this.monitorsActive) return;
     this.monitorsActive = false;
-    this.grpcSdk.unmonitorModule('email');
-    this.grpcSdk.unmonitorModule('sms');
-    this.grpcSdk.unmonitorModule('router');
+    this.grpcSdk.unmonitorModule('communicator');
   }
 
   async initializeMetrics() {
@@ -209,7 +201,7 @@ export default class Authentication extends ManagedModule<Config> {
         });
         const result = { verificationToken, hostUrl: url };
         const link = `${result.hostUrl}/hook/authentication/verify-email/${result.verificationToken.token}`;
-        await this.grpcSdk.emailProvider!.sendEmail('EmailVerification', {
+        await this.grpcSdk.communicator!.sendEmail('EmailVerification', {
           email: user.email,
           sender: 'no-reply',
           variables: {

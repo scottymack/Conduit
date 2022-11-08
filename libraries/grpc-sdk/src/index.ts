@@ -37,7 +37,7 @@ import { ConduitLogger, setupLoki } from './utilities/Logger';
 import winston from 'winston';
 import path from 'path';
 import { ConduitMetrics } from './metrics';
-import { Communicator } from './modules/communicator';
+import { Communicator } from './modules';
 
 export default class ConduitGrpcSdk {
   private readonly serverUrl: string;
@@ -51,11 +51,8 @@ export default class ConduitGrpcSdk {
     router: Router,
     database: DatabaseProvider,
     storage: Storage,
-    email: Email,
-    pushNotifications: PushNotifications,
     authentication: Authentication,
     authorization: Authorization,
-    sms: SMS,
     chat: Chat,
     forms: Forms,
     communicator: Communicator,
@@ -228,29 +225,11 @@ export default class ConduitGrpcSdk {
     }
   }
 
-  get emailProvider(): Email | null {
-    if (this._modules['email']) {
-      return this._modules['email'] as Email;
-    } else {
-      ConduitGrpcSdk.Logger.warn('Email provider not up yet!');
-      return null;
-    }
-  }
-
   get communicator(): Communicator | null {
     if (this._modules['communicator']) {
       return this._modules['communicator'] as Communicator;
     } else {
       ConduitGrpcSdk.Logger.warn('Communicator provider not up yet!');
-      return null;
-    }
-  }
-
-  get pushNotifications(): PushNotifications | null {
-    if (this._modules['pushNotifications']) {
-      return this._modules['pushNotifications'] as PushNotifications;
-    } else {
-      ConduitGrpcSdk.Logger.warn('Push notifications module not up yet!');
       return null;
     }
   }
@@ -269,15 +248,6 @@ export default class ConduitGrpcSdk {
       return this._modules['authorization'] as Authorization;
     } else {
       ConduitGrpcSdk.Logger.warn('Authorization module not up yet!');
-      return null;
-    }
-  }
-
-  get sms(): SMS | null {
-    if (this._modules['sms']) {
-      return this._modules['sms'] as SMS;
-    } else {
-      ConduitGrpcSdk.Logger.warn('SMS module not up yet!');
       return null;
     }
   }
