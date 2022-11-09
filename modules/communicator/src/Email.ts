@@ -23,7 +23,7 @@ import { EmailAdminHandlers } from './admin/email.admin';
 export class Email extends ConduitServiceModule {
   private emailService!: EmailService;
   private emailProvider!: EmailProvider;
-  private emailAdminRouter!: EmailAdminHandlers;
+  private adminRouter!: EmailAdminHandlers;
   isRunning: boolean = false;
 
   constructor(
@@ -34,6 +34,7 @@ export class Email extends ConduitServiceModule {
     super('email');
     this.grpcSdk = grpcSdk;
     this.grpcServer = grpcServer;
+    this.initialize();
   }
 
   async initialize() {
@@ -64,7 +65,7 @@ export class Email extends ConduitServiceModule {
       if (!this.isRunning) {
         await this.initProvider();
         this.emailService = new EmailService(this.emailProvider);
-        this.emailAdminRouter.setEmailService(this.emailService);
+        this.adminRouter.setEmailService(this.emailService);
         this.isRunning = true;
       } else {
         await this.initProvider(ConfigController.getInstance().config);
@@ -81,7 +82,7 @@ export class Email extends ConduitServiceModule {
     const { transport, transportSettings } = emailConfig.email;
 
     this.emailProvider = new EmailProvider(transport, transportSettings);
-    this.emailAdminRouter = new EmailAdminHandlers(
+    this.adminRouter = new EmailAdminHandlers(
       this.grpcServer,
       this.grpcSdk,
       this.routingManager!,

@@ -1,4 +1,4 @@
-import ConduitGrpcSdk, {
+import {
   ConfigController,
   DatabaseProvider,
   HealthCheckStatus,
@@ -9,22 +9,8 @@ import path from 'path';
 import AppConfigSchema, { Config } from './config';
 import * as models from './models';
 import { runMigrations } from './migrations';
-import { isNil } from 'lodash';
-import { SmsAdminHandlers } from './admin/sms.admin';
-import { PushNotificationsAdminHandlers } from './admin/pushNotifications.admin';
-import {
-  IFirebaseSettings,
-  IOneSignalSettings,
-  IPushNotificationsProvider,
-  ISendNotification,
-  ISendNotificationToManyDevices,
-  ISmsProvider,
-} from './interfaces';
-import { TwilioProvider } from './providers/sms-provider/twilio';
-import { PushNotificationsRoutes } from './routes/pushNotifications.routes';
-import { FirebaseProvider } from './providers/push-notifications-provider/Firebase.provider';
-import { OneSignalProvider } from './providers/push-notifications-provider/OneSignal.provider';
 import { Email } from './Email';
+import { PushNotifications } from './PushNotifications';
 
 export default class Communicator extends ManagedModule<Config> {
   configSchema = AppConfigSchema;
@@ -39,6 +25,7 @@ export default class Communicator extends ManagedModule<Config> {
   private database!: DatabaseProvider;
   private routingManager: RoutingManager | undefined;
   private email: Email | undefined;
+  private pushNotifications: PushNotifications | undefined;
 
   constructor() {
     super('communicator');
@@ -52,6 +39,11 @@ export default class Communicator extends ManagedModule<Config> {
     await this.registerSchemas();
     await runMigrations(this.grpcSdk);
     this.email = new Email(this.routingManager, this.grpcSdk, this.grpcServer);
+    this.pushNotifications = new PushNotifications(
+      this.routingManager,
+      this.grpcSdk,
+      this.grpcServer,
+    );
   }
 
   protected registerSchemas() {
@@ -85,7 +77,8 @@ export default class Communicator extends ManagedModule<Config> {
     if (!isEmailActive && !isSmsActive && isPushNotificationsActive) {
       this.updateHealth(HealthCheckStatus.NOT_SERVING);
     }
-    this.email?.onConfig();
+    await this.email?.onConfig();
+    await this.pushNotifications?.onConfig();
 
     this.updateHealth(HealthCheckStatus.SERVING);
     await this.routingManager?.registerRoutes();
@@ -115,60 +108,5 @@ export default class Communicator extends ManagedModule<Config> {
   //   );
   //   this.smsAdminRouter.updateProvider(this._smsProvider);
   //   this.smsIsRunning = true;
-  // }
-  //
-  // private async initPushNotificationsProvider() {
-  //   const notificationsConfig = await this.grpcSdk.config.get('communicator');
-  //   const name = notificationsConfig.pushNotifications.providerName;
-  //   const settings = notificationsConfig.pushNotifications[name];
-  //   if (name === 'firebase') {
-  //     this._pushNotificationsProvider = new FirebaseProvider(
-  //       settings as IFirebaseSettings,
-  //     );
-  //   } else if (name === 'onesignal') {
-  //     this._pushNotificationsProvider = new OneSignalProvider(
-  //       settings as IOneSignalSettings,
-  //     );
-  //   } else {
-  //     throw new Error('Provider not supported');
-  //   }
-  //   this.pushNotificationsAdminRouter = new PushNotificationsAdminHandlers(
-  //     this.grpcServer,
-  //     this.grpcSdk,
-  //     this.routingManager!,
-  //     this._pushNotificationsProvider!,
-  //   );
-  //   this.pushNotificationsIsRunning = true;
-  // }
-  //
-  // private async enableModule() {
-  //   if (!this.pushNotificationsIsRunning) {
-  //     await this.initPushNotificationsProvider();
-  //     if (
-  //       !this._pushNotificationsProvider ||
-  //       !this._pushNotificationsProvider?.isInitialized
-  //     ) {
-  //       throw new Error('Provider failed to initialize');
-  //     }
-  //     if (this.grpcSdk.isAvailable('router')) {
-  //       this.userRouter = new PushNotificationsRoutes(this.grpcServer, this.grpcSdk);
-  //     } else {
-  //       this.grpcSdk.monitorModule('router', serving => {
-  //         if (serving) {
-  //           this.userRouter = new PushNotificationsRoutes(this.grpcServer, this.grpcSdk);
-  //           this.grpcSdk.unmonitorModule('router');
-  //         }
-  //       });
-  //     }
-  //   } else {
-  //     await this.initPushNotificationsProvider();
-  //     if (
-  //       !this._pushNotificationsProvider ||
-  //       !this._pushNotificationsProvider?.isInitialized
-  //     ) {
-  //       throw new Error('Provider failed to initialize');
-  //     }
-  //     this.pushNotificationsAdminRouter.updateProvider(this._pushNotificationsProvider!);
-  //   }
   // }
 }

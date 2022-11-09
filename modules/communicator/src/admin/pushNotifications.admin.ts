@@ -12,9 +12,9 @@ import ConduitGrpcSdk, {
 } from '@conduitplatform/grpc-sdk';
 import { status } from '@grpc/grpc-js';
 import { isNil } from 'lodash';
-import { IPushNotificationsProvider } from '../interfaces/IPushNotificationsProvider';
+import { IPushNotificationsProvider } from '../interfaces';
 import { NotificationToken } from '../models';
-import { ISendNotification } from '../interfaces/ISendNotification';
+import { ISendNotification } from '../interfaces';
 
 export class PushNotificationsAdminHandlers {
   private provider: IPushNotificationsProvider;
