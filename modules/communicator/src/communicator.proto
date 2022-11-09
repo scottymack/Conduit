@@ -105,16 +105,25 @@ message SendEmailResponse {
   string sentMessageInfo = 1;
 }
 
-service Communicator {
-  rpc SetConfig(SetConfigRequest) returns (SetConfigResponse);
+service Email  {
+  rpc RegisterTemplate(RegisterTemplateRequest) returns (RegisterTemplateResponse);
+  rpc SendEmail(SendEmailRequest) returns (SendEmailResponse);
+}
+
+service Sms {
   rpc SendSms(SendSmsRequest) returns (SendSmsResponse);
   rpc SendVerificationCode(SendVerificationCodeRequest) returns (SendVerificationCodeResponse);
   rpc Verify(VerifyRequest) returns (VerifyResponse);
+}
+
+service PushNotifications {
   rpc SetNotificationToken(SetNotificationTokenRequest) returns (SetNotificationTokenResponse);
   rpc GetNotificationTokens(GetNotificationTokensRequest) returns (GetNotificationTokensResponse);
   rpc SendNotification(SendNotificationRequest) returns (SendNotificationResponse);
   rpc SendNotificationToManyDevices(SendNotificationToManyDevicesRequest) returns (SendNotificationResponse);
   rpc SendManyNotifications(SendManyNotificationsRequest) returns (SendNotificationResponse);
-  rpc RegisterTemplate(RegisterTemplateRequest) returns (RegisterTemplateResponse);
-  rpc SendEmail(SendEmailRequest) returns (SendEmailResponse);
+}
+
+service Communicator {
+  rpc SetConfig(SetConfigRequest) returns (SetConfigResponse);
 }
