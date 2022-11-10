@@ -63,7 +63,7 @@ export async function sendInvitations(
       const roomName = room.name;
       const userName = sender.email;
       await grpcSdk
-        .communicator!.sendEmail('ChatRoomInvitation', {
+        .email!.sendEmail('ChatRoomInvitation', {
           email: invitedUser.email,
           sender: 'no-reply',
           variables: {
@@ -81,7 +81,7 @@ export async function sendInvitations(
       const body = `User ${sender._id} has invited you to join in room ${room.name}`;
       const title = 'You have an invitation request!';
       await grpcSdk
-        .communicator!.sendNotification(invitedUser._id, title, body)
+        .pushNotifications!.sendNotification(invitedUser._id, title, body)
         .catch((e: Error) => {
           throw new Error(e.message);
         });

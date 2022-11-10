@@ -100,7 +100,7 @@ export class MagicLinkHandlers implements IAuthenticationStrategy {
 
     const result = { token, hostUrl: url };
     const link = `${result.hostUrl}/hook/authentication/magic-link/${result.token.token}`;
-    await this.communicator.sendEmail('MagicLink', {
+    await this.communicator.email!.sendEmail('MagicLink', {
       email: user.email,
       sender: 'no-reply',
       variables: {
@@ -143,6 +143,6 @@ export class MagicLinkHandlers implements IAuthenticationStrategy {
   }
 
   private registerTemplate() {
-    return this.communicator.registerTemplate(magicLinkTemplate);
+    return this.communicator.email!.registerTemplate(magicLinkTemplate);
   }
 }

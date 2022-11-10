@@ -30,6 +30,7 @@ import { isNil } from 'lodash';
 import { FirebaseProvider } from './providers/push-notifications-provider/Firebase.provider';
 import { OneSignalProvider } from './providers/push-notifications-provider/OneSignal.provider';
 import { PushNotificationsRoutes } from './routes/pushNotifications.routes';
+import { Config } from './config';
 
 export class PushNotifications extends ConduitServiceModule {
   private adminRouter!: PushNotificationsAdminHandlers;
@@ -73,6 +74,15 @@ export class PushNotifications extends ConduitServiceModule {
       this._provider = new OneSignalProvider(settings as IOneSignalSettings);
     } else {
       throw new Error('Provider not supported');
+    }
+  }
+
+  async preConfig(config: Config) {
+    if (
+      isNil(config.pushNotifications.active) ||
+      isNil(config.pushNotifications.providerName)
+    ) {
+      throw new Error('Invalid configuration given');
     }
   }
 

@@ -85,7 +85,7 @@ export class FormsRoutes {
       text += `</br>${r}: ${data[r]}`;
     });
     await this.grpcSdk
-      .communicator!.sendEmail('FormSubmission', {
+      .email!.sendEmail('FormSubmission', {
         email: form.forwardTo,
         sender: 'forms',
         replyTo: form.emailField ? data[form.emailField] : null,

@@ -56,15 +56,7 @@ export default class Communicator extends ManagedModule<Config> {
 
   async preConfig(config: Config) {
     await this.email?.preConfig(config);
-    // if (isNil(config.sms.active) || isNil(config.sms.providerName)) {
-    //   throw new Error('Invalid configuration given');
-    // }
-    // if (
-    //   isNil(config.pushNotifications.active) ||
-    //   isNil(config.pushNotifications.providerName)
-    // ) {
-    //   throw new Error('Invalid configuration given');
-    // }
+    await this.pushNotifications?.preConfig(config);
     return config;
   }
 
@@ -83,7 +75,6 @@ export default class Communicator extends ManagedModule<Config> {
     this.updateHealth(HealthCheckStatus.SERVING);
     await this.routingManager?.registerRoutes();
   }
-
   // private async initSmsProvider() {
   //   const smsConfig = await this.grpcSdk.config.get('communicator');
   //   const name = smsConfig.sms.providerName;

@@ -219,7 +219,7 @@ export class LocalHandlers implements IAuthenticationStrategy {
       const result = { verificationToken, hostUrl: url };
       const link = `${result.hostUrl}/hook/authentication/verify-email/${result.verificationToken.token}`;
       await this.communicator
-        .sendEmail('EmailVerification', {
+        .email!.sendEmail('EmailVerification', {
           email: user.email,
           sender: 'no-reply',
           variables: {
@@ -292,7 +292,7 @@ export class LocalHandlers implements IAuthenticationStrategy {
     const appUrl = config.local.forgot_password_redirect_uri;
     const link = `${appUrl}?reset_token=${passwordResetTokenDoc.token}`;
     if (config.local.verification.send_email && this.grpcSdk.isAvailable('email')) {
-      await this.communicator.sendEmail('ForgotPassword', {
+      await this.communicator.email!.sendEmail('ForgotPassword', {
         email: user.email,
         sender: 'no-reply',
         variables: {
@@ -418,7 +418,7 @@ export class LocalHandlers implements IAuthenticationStrategy {
           result.verificationToken!.token
         }`;
         await this.communicator
-          .sendEmail('ChangeEmailVerification', {
+          .email!.sendEmail('ChangeEmailVerification', {
             email: newEmail,
             sender: 'no-reply',
             variables: {
@@ -557,7 +557,7 @@ export class LocalHandlers implements IAuthenticationStrategy {
     const serverConfig = await this.grpcSdk.config.get('router');
     const result = { token: verificationToken.token, hostUrl: serverConfig.hostUrl };
     const link = `${result.hostUrl}/hook/authentication/verify-email/${result.token}`;
-    await this.communicator.sendEmail('EmailVerification', {
+    await this.communicator.email!.sendEmail('EmailVerification', {
       email: email,
       sender: 'no-reply',
       variables: {
@@ -601,7 +601,7 @@ export class LocalHandlers implements IAuthenticationStrategy {
 
   private registerTemplates() {
     const promises = Object.values(templates).map(template => {
-      return this.communicator.registerTemplate(template);
+      return this.communicator.email!.registerTemplate(template);
     });
     Promise.all(promises)
       .then(() => {

@@ -39,7 +39,7 @@ export class ChatRoutes {
       .get('email')
       .then(() => {
         const promises = Object.values(templates).map(template => {
-          return this.grpcSdk.communicator!.registerTemplate(template);
+          return this.grpcSdk.email!.registerTemplate(template);
         });
         return Promise.all(promises);
       })

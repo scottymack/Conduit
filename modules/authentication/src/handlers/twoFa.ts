@@ -373,7 +373,10 @@ export class TwoFa implements IAuthenticationStrategy {
         status.INVALID_ARGUMENT,
         'No verification record for this user',
       );
-    const verified = await this.communicatorModule.verify(verificationRecord.token, code);
+    const verified = await this.communicatorModule.sms!.verify(
+      verificationRecord.token,
+      code,
+    );
     if (!verified.verified) {
       throw new GrpcError(status.UNAUTHENTICATED, 'email and code do not match');
     }

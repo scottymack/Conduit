@@ -85,7 +85,10 @@ export namespace AuthUtils {
     token: Token,
     code: string,
   ): Promise<boolean> {
-    const verified = await grpcSdk.communicator!.verify(token.data.verification, code);
+    const verified = await grpcSdk.communicator!.sms!.verify(
+      token.data.verification,
+      code,
+    );
     if (!verified.verified) {
       return false;
     }
@@ -103,7 +106,7 @@ export namespace AuthUtils {
   }
 
   export async function sendVerificationCode(communicator: Communicator, to: string) {
-    const verificationSid = await communicator.sendVerificationCode(to);
+    const verificationSid = await communicator.sms!.sendVerificationCode(to);
     return verificationSid.verificationSid || '';
   }
 

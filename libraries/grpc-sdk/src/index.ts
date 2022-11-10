@@ -35,6 +35,9 @@ import { ConduitLogger, setupLoki } from './utilities/Logger';
 import winston from 'winston';
 import path from 'path';
 import { ConduitMetrics } from './metrics';
+import { PushNotifications } from './modules/communicator/pushNotifications';
+import { Email } from './modules/communicator/email';
+import { SMS } from './modules/communicator/sms';
 
 export default class ConduitGrpcSdk {
   private readonly serverUrl: string;
@@ -226,7 +229,34 @@ export default class ConduitGrpcSdk {
     if (this._modules['communicator']) {
       return this._modules['communicator'] as Communicator;
     } else {
-      ConduitGrpcSdk.Logger.warn('Communicator provider not up yet!');
+      ConduitGrpcSdk.Logger.warn('Communicator module not up yet!');
+      return null;
+    }
+  }
+
+  get pushNotifications(): PushNotifications | null {
+    if (this._modules['communicator']) {
+      return (this._modules['communicator'] as Communicator).pushNotifications!;
+    } else {
+      ConduitGrpcSdk.Logger.warn('Communicator module not up yet!');
+      return null;
+    }
+  }
+
+  get email(): Email | null {
+    if (this._modules['communicator']) {
+      return (this._modules['communicator'] as Communicator).email!;
+    } else {
+      ConduitGrpcSdk.Logger.warn('Communicator module not up yet!');
+      return null;
+    }
+  }
+
+  get sms(): SMS | null {
+    if (this._modules['communicator']) {
+      return (this._modules['communicator'] as Communicator).sms!;
+    } else {
+      ConduitGrpcSdk.Logger.warn('Communicator module not up yet!');
       return null;
     }
   }
